@@ -171,31 +171,26 @@
             </div>
 
             <div class="flex items-center space-x-3">
-                <!-- Firebase Status Indicator -->
                 <div id="db-status-badge" class="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-slate-300">
                     <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse" id="db-status-dot"></span>
                     <span id="db-status-text">Menghubungkan Database...</span>
                 </div>
 
-                <!-- Technical / Admin DB Config Button -->
                 <button id="btn-config-db" onclick="openConfigModal()" class="hidden px-3.5 py-2 rounded-xl glass-panel hover:bg-white/10 text-xs font-medium text-slate-200 flex items-center gap-2 transition-all border border-white/10">
                     <i class="fa-solid fa-gear text-indigo-400"></i>
                     <span class="hidden md:inline">Konfigurasi DB</span>
                 </button>
 
-                <!-- Export XLSX Button -->
                 <button id="btn-export-xlsx" onclick="exportToExcel()" class="hidden px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-semibold flex items-center gap-2 transition-all">
                     <i class="fa-solid fa-file-excel"></i>
                     <span class="hidden md:inline">Ekspor XLSX</span>
                 </button>
 
-                <!-- Add Transaction -->
                 <button id="btn-add-tx" onclick="openAddTransactionModal()" class="hidden px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/30 items-center gap-2 transition-all">
                     <i class="fa-solid fa-plus"></i>
                     <span>Tambah Kas</span>
                 </button>
 
-                <!-- Logout / Switch Role -->
                 <button onclick="logoutSession()" class="px-3 py-2 rounded-xl bg-white/5 hover:bg-rose-500/20 text-slate-300 hover:text-rose-300 text-xs font-medium flex items-center gap-1.5 transition-all border border-white/10" title="Keluar / Ganti Akun">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     <span class="hidden sm:inline">Keluar</span>
@@ -304,7 +299,7 @@
                             <i class="fa-solid fa-layer-group text-indigo-400"></i> Kategori Teratas
                         </h3>
                         <div id="category-summary-list" class="space-y-3 max-h-56 overflow-y-auto pr-1">
-                            <div class="text-xs text-slate-400 text-center py-6">Memuat ringkasan kategori...</div>
+                            <div class="text-xs text-slate-400 text-center py-6">Belum ada kategori tercatat.</div>
                         </div>
                     </div>
 
@@ -372,7 +367,7 @@
                             </tr>
                         </thead>
                         <tbody id="transactions-table-body" class="divide-y divide-white/5 text-xs text-slate-300">
-                            <tr><td colspan="7" class="text-center py-8 text-slate-400">Memuat data transaksi...</td></tr>
+                            <tr><td colspan="7" class="text-center py-8 text-slate-400">Tidak ada data transaksi.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -421,7 +416,7 @@
                             </tr>
                         </thead>
                         <tbody id="bills-table-body" class="divide-y divide-white/5 text-xs text-slate-300">
-                            <tr><td colspan="6" class="text-center py-8 text-slate-400">Memuat data tagihan...</td></tr>
+                            <tr><td colspan="6" class="text-center py-8 text-slate-400">Tidak ada data tagihan.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -468,7 +463,7 @@
                             </tr>
                         </thead>
                         <tbody id="members-table-body" class="divide-y divide-white/5 text-xs text-slate-300">
-                            <tr><td colspan="6" class="text-center py-8 text-slate-400">Memuat data anggota...</td></tr>
+                            <tr><td colspan="6" class="text-center py-8 text-slate-400">Tidak ada data anggota.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -672,19 +667,9 @@
         window.currentRole = "PUBLIC";
 
         let appState = {
-            transactions: {
-                "tx_demo_1": { date: "2026-11-01", type: "INCOME", amount: 150000, category: "Iuran Wajib Kelas", sender: "Kelas X-1", desc: "Pembayaran iuran kas bulan November" },
-                "tx_demo_2": { date: "2026-11-02", type: "INCOME", amount: 150000, category: "Iuran Wajib Kelas", sender: "Kelas X-2", desc: "Pembayaran iuran kas bulan November" },
-                "tx_demo_3": { date: "2026-11-03", type: "EXPENSE", amount: 75000, category: "Konsumsi Rapat", sender: "Bendahara MPK", desc: "Beli snack rapat pleno MPK" }
-            },
-            bills: {
-                "bill_demo_1": { title: "Iuran Kas Wajib November 2026", target: "Kelas X-1", amount: 150000, dueDate: "2026-11-30", status: "Lunas", desc: "Iuran bulanan MPK" }
-            },
-            members: {
-                "mb_demo_1": { name: "Kelas X-1", period: "November 2026", status: "Lunas", amount: 150000, note: "Lunas tepat waktu" },
-                "mb_demo_2": { name: "Kelas X-2", period: "November 2026", status: "Lunas", amount: 150000, note: "Lunas" },
-                "mb_demo_3": { name: "Kelas X-3", period: "November 2026", status: "Belum Lunas", amount: 0, note: "Menunggu penagihan" }
-            }
+            transactions: {},
+            bills: {},
+            members: {}
         };
 
         const categoriesIncome = ["Iuran Wajib Kelas", "Sponsorship / Donatur", "Dana Usaha MPK", "Lain-lain (Pemasukan)"];
@@ -702,11 +687,11 @@
                 database.ref('kas_mpk').on('value', (snapshot) => {
                     const data = snapshot.val();
                     if (data) {
-                        if (data.transactions) appState.transactions = data.transactions;
-                        if (data.bills) appState.bills = data.bills;
-                        if (data.members) appState.members = data.members;
+                        appState.transactions = data.transactions || {};
+                        appState.bills = data.bills || {};
+                        appState.members = data.members || {};
                     } else {
-                        database.ref('kas_mpk').set(appState);
+                        database.ref('kas_mpk').set({ transactions: {}, bills: {}, members: {} });
                     }
                     renderAll();
                     updateStatusBadge(true, "Firebase Terhubung (Online)");
@@ -902,7 +887,7 @@
             });
 
             if (txArray.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${canEdit ? 7 : 6}" class="text-center py-8 text-slate-400">Tidak ada data transaksi ditemukan.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${canEdit ? 7 : 6}" class="text-center py-8 text-slate-400">Tidak ada data transaksi.</td></tr>`;
                 return;
             }
 
@@ -941,7 +926,7 @@
             if (search) billsArray = billsArray.filter(b => (b.title && b.title.toLowerCase().includes(search)) || (b.target && b.target.toLowerCase().includes(search)));
 
             if (billsArray.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${canEdit ? 6 : 5}" class="text-center py-8 text-slate-400">Tidak ada data tagihan ditemukan.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${canEdit ? 6 : 5}" class="text-center py-8 text-slate-400">Tidak ada data tagihan.</td></tr>`;
                 return;
             }
 
@@ -980,7 +965,7 @@
             if (search) membersArray = membersArray.filter(m => (m.name && m.name.toLowerCase().includes(search)) || (m.period && m.period.toLowerCase().includes(search)));
 
             if (membersArray.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${canEdit ? 6 : 5}" class="text-center py-8 text-slate-400">Tidak ada data anggota ditemukan.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${canEdit ? 6 : 5}" class="text-center py-8 text-slate-400">Tidak ada data anggota.</td></tr>`;
                 return;
             }
 
