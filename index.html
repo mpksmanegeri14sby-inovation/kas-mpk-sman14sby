@@ -70,6 +70,13 @@
             0% { opacity: 1; transform: scale(1); }
             100% { opacity: 0; transform: scale(1.04); pointer-events: none; visibility: hidden; }
         }
+        .admin-intro-anim {
+            animation: adminIntroScale 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes adminIntroScale {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
         .intro-logo-glow {
             animation: logoPulse 2s infinite ease-in-out;
         }
@@ -116,6 +123,106 @@
             </div>
             <div class="w-48 sm:w-56 h-1.5 bg-white/10 rounded-full mx-auto overflow-hidden p-0.5 border border-amber-500/20">
                 <div id="intro-progress" class="w-0 h-full bg-gradient-to-r from-amber-600 via-amber-400 to-amber-200 rounded-full transition-all duration-300"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN INTRO / VIDEO OPENING SPECIAL MODAL -->
+    <div id="admin-intro-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-2xl hidden px-4">
+        <div class="mpk-card p-6 sm:p-8 rounded-3xl max-w-xl w-full border border-amber-500/60 shadow-2xl shadow-amber-500/30 admin-intro-anim space-y-5 relative overflow-hidden">
+            <div class="absolute -top-24 -right-24 w-48 h-48 bg-amber-600/20 rounded-full blur-3xl"></div>
+            <div class="text-center space-y-2 relative z-10">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-amber-500/30 to-amber-700/10 flex items-center justify-center border border-amber-500/50 shadow-xl mx-auto intro-logo-glow">
+                    <i class="fa-solid fa-crown text-2xl sm:text-3xl text-amber-400"></i>
+                </div>
+                <h2 class="text-base sm:text-lg font-extrabold text-amber-400 tracking-wider gold-glow uppercase">Pusat Kendali Administrator</h2>
+                <p class="text-[11px] sm:text-xs text-amber-200/80 font-mono">Sistem Pengawasan & Keuangan Parlemen SMAN 14 Surabaya</p>
+            </div>
+            <div class="space-y-3 bg-white/5 p-4 rounded-2xl border border-white/10 text-xs text-slate-300 relative z-10">
+                <p class="font-bold text-amber-300 flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles"></i> Hak Istimewa & Fungsi Utama Admin:</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                    <div class="p-2.5 rounded-xl bg-black/30 border border-white/5 flex items-start gap-2">
+                        <i class="fa-solid fa-shield-user text-amber-400 mt-0.5"></i>
+                        <span><strong>Pengaturan Akses User:</strong> Atur izin peran, hak sandi, & pembatasan fitur secara real-time.</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-black/30 border border-white/5 flex items-start gap-2">
+                        <i class="fa-solid fa-database text-amber-400 mt-0.5"></i>
+                        <span><strong>Kontrol Penuh Data:</strong> Tambah/hapus halaman kas, kelola anggota, dan verifikasi cicilan.</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-black/30 border border-white/5 flex items-start gap-2">
+                        <i class="fa-solid fa-file-excel text-amber-400 mt-0.5"></i>
+                        <span><strong>Ekspor & Keamanan:</strong> Cetak laporan Excel resmi dengan enkripsi sandi sesi aktif.</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-black/30 border border-white/5 flex items-start gap-2">
+                        <i class="fa-solid fa-comments text-amber-400 mt-0.5"></i>
+                        <span><strong>Moderasi Aspirasi:</strong> Kelola masukan & kritik pembina/tamu secara transparan.</span>
+                    </div>
+                </div>
+            </div>
+            <button onclick="closeAdminIntroModal()" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 text-slate-950 font-bold text-xs shadow-lg hover:from-amber-500 hover:to-yellow-500 transition-all uppercase tracking-wider relative z-10 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-rocket"></i>
+                <span>Masuk Dashboard Administrator</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: PENGATURAN AKSES USER (KHUSUS ADMIN) -->
+    <div id="admin-access-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md hidden px-4">
+        <div class="mpk-card p-6 sm:p-7 rounded-3xl max-w-xl w-full border border-amber-500/40 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
+                        <i class="fa-solid fa-users-gear text-sm"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs sm:text-sm font-bold text-amber-400 uppercase tracking-wider">Pengaturan Akses Pengguna & Peran</h3>
+                        <p class="text-[10px] text-slate-400">Kelola kunci sandi & hak akses otoritas sistem</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('admin-access-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <p class="text-slate-300 leading-relaxed">
+                    Sebagai <strong class="text-amber-400">Administrator</strong>, Anda dapat menyesuaikan konfigurasi sandi dan status izin masing-masing tingkat peran di bawah ini:
+                </p>
+                <div class="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+                    <div class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-amber-300">BPH (Badan Pengurus Harian)</span>
+                            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-mono">Sandi Khusus</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300 font-mono">
+                            <div>Ketum: <input type="text" id="pass-bph-ketum" value="KETUMKA" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
+                            <div>Waketum: <input type="text" id="pass-bph-waketum" value="WAKETUMKA" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
+                            <div>Sekre 1: <input type="text" id="pass-bph-sekre1" value="SEKREMKA 1" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
+                            <div>Sekre 2: <input type="text" id="pass-bph-sekre2" value="SKREMKA 2" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
+                        </div>
+                    </div>
+                    <div class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-amber-300">BENDAHARA</span>
+                            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-mono">Kelola Setoran & Kolom</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300 font-mono">
+                            <div>Bendahara 1: <input type="text" id="pass-bend-1" value="AIRIN" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
+                            <div>Bendahara 2: <input type="text" id="pass-bend-2" value="TYAS" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
+                        </div>
+                    </div>
+                    <div class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-amber-300">PEMBINA & ADMINISTRATOR</span>
+                            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-mono">Pengawas & Full Akses</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300 font-mono">
+                            <div>Sandi Pembina: <input type="text" id="pass-pembina" value="PEMBINA" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
+                            <div>Sandi Admin: <input type="text" id="pass-admin" value="999" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-2 pt-2 border-t border-white/10">
+                <button type="button" onclick="closeModal('admin-access-modal')" class="px-3.5 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-white/5">Batal</button>
+                <button type="button" onclick="saveAdminAccessSettings()" class="px-4.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-xs shadow-lg">Simpan Konfigurasi</button>
             </div>
         </div>
     </div>
@@ -288,6 +395,11 @@
                 </div>
             </div>
             <div class="flex items-center space-x-1.5 sm:space-x-2.5 flex-shrink-0">
+                <!-- Tombol Khusus Admin: Pengaturan Akses User -->
+                <button id="btn-admin-access" onclick="openAdminAccessModal()" class="px-2.5 sm:px-3 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-semibold flex items-center gap-1.5 transition-all hidden" title="Pengaturan Akses User">
+                    <i class="fa-solid fa-users-gear text-amber-400"></i>
+                    <span class="hidden lg:inline">Akses User</span>
+                </button>
                 <button id="btn-export-excel" onclick="exportExcel()" class="px-2.5 sm:px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-semibold flex items-center gap-1.5 transition-all restricted-action" title="Ekspor Excel">
                     <i class="fa-solid fa-file-excel"></i>
                     <span class="hidden sm:inline">Ekspor Excel</span>
@@ -587,7 +699,7 @@
         let activeTabColId = null; 
         let searchQuery = "";
         let paymentFilter = "ALL"; // ALL, LUNAS, BELUM_LUNAS, BELUM_BAYAR, CHECK_ALL, CHECK_SUDAH, CHECK_BELUM
-        let appData = { students: {}, columns: {}, matrixData: {}, expenses: {}, pembinaNotes: {} };
+        let appData = { students: {}, columns: {}, matrixData: {}, expenses: {}, pembinaNotes: {}, accessPasswords: { bphKetum: 'KETUMKA', bphWaketum: 'WAKETUMKA', bphSekre1: 'SEKREMKA 1', bphSekre2: 'SKREMKA 2', bend1: 'AIRIN', bend2: 'TYAS', pembina: 'PEMBINA', admin: '999' } };
 
         window.addEventListener('DOMContentLoaded', () => {
             let progress = 0;
@@ -616,6 +728,7 @@
                         appData.matrixData = data.matrixData || {};
                         appData.expenses = data.expenses || {};
                         appData.pembinaNotes = data.pembinaNotes || {};
+                        if(data.accessPasswords) appData.accessPasswords = data.accessPasswords;
                     }
                     
                     const colKeys = Object.keys(appData.columns || {});
@@ -676,23 +789,25 @@
             const role = document.getElementById('login-role').value;
             const password = document.getElementById('login-password').value.trim();
 
+            const p = appData.accessPasswords || { bphKetum: 'KETUMKA', bphWaketum: 'WAKETUMKA', bphSekre1: 'SEKREMKA 1', bphSekre2: 'SKREMKA 2', bend1: 'AIRIN', bend2: 'TYAS', pembina: 'PEMBINA', admin: '999' };
+
             let identifiedUser = "";
 
             if (role === 'BPH') {
-                if (password === 'KETUMKA') identifiedUser = 'Vincent (Ketum)';
-                else if (password === 'WAKETUMKA') identifiedUser = 'Oriana';
-                else if (password === 'SEKREMKA 1') identifiedUser = 'Namira';
-                else if (password === 'SKREMKA 2') identifiedUser = 'AIn';
+                if (password === p.bphKetum) identifiedUser = 'Vincent (Ketum)';
+                else if (password === p.bphWaketum) identifiedUser = 'Oriana';
+                else if (password === p.bphSekre1) identifiedUser = 'Namira';
+                else if (password === p.bphSekre2) identifiedUser = 'AIn';
                 else { showToast("Sandi BPH salah!", "error"); return; }
             } else if (role === 'BENDAHARA') {
-                if (password === 'AIRIN') identifiedUser = 'Airin';
-                else if (password === 'TYAS') identifiedUser = 'Tyas';
+                if (password === p.bend1) identifiedUser = 'Airin';
+                else if (password === p.bend2) identifiedUser = 'Tyas';
                 else { showToast("Sandi BENDAHARA salah!", "error"); return; }
             } else if (role === 'PEMBINA') {
-                if (password !== 'PEMBINA') { showToast("Sandi PEMBINA salah!", "error"); return; }
+                if (password !== p.pembina) { showToast("Sandi PEMBINA salah!", "error"); return; }
                 identifiedUser = 'Pembina';
             } else if (role === 'ADMINISTRATOR') {
-                if (password !== '999') { showToast("Sandi Administrator salah!", "error"); return; }
+                if (password !== p.admin) { showToast("Sandi Administrator salah!", "error"); return; }
                 identifiedUser = 'Admin';
             }
 
@@ -705,25 +820,68 @@
 
             applyRolePermissions();
 
-            document.getElementById('login-success-desc').textContent = `Berhasil masuk sebagai ${role} (${identifiedUser})`;
-            document.getElementById('success-login-popup').classList.remove('hidden');
+            if (role === 'ADMINISTRATOR') {
+                document.getElementById('admin-intro-modal').classList.remove('hidden');
+            } else {
+                document.getElementById('login-success-desc').textContent = `Berhasil masuk sebagai ${role} (${identifiedUser})`;
+                document.getElementById('success-login-popup').classList.remove('hidden');
+            }
+        }
+
+        window.closeAdminIntroModal = function() {
+            document.getElementById('admin-intro-modal').classList.add('hidden');
         }
 
         window.closeLoginSuccessPopup = function() {
             document.getElementById('success-login-popup').classList.add('hidden');
         }
 
+        window.openAdminAccessModal = function() {
+            if (windowRole !== 'ADMINISTRATOR') {
+                showToast("Akses khusus Administrator!", "error");
+                return;
+            }
+            const p = appData.accessPasswords || {};
+            document.getElementById('pass-bph-ketum').value = p.bphKetum || 'KETUMKA';
+            document.getElementById('pass-bph-waketum').value = p.bphWaketum || 'WAKETUMKA';
+            document.getElementById('pass-bph-sekre1').value = p.bphSekre1 || 'SEKREMKA 1';
+            document.getElementById('pass-bph-sekre2').value = p.bphSekre2 || 'SKREMKA 2';
+            document.getElementById('pass-bend-1').value = p.bend1 || 'AIRIN';
+            document.getElementById('pass-bend-2').value = p.bend2 || 'TYAS';
+            document.getElementById('pass-pembina').value = p.pembina || 'PEMBINA';
+            document.getElementById('pass-admin').value = p.admin || '999';
+
+            document.getElementById('admin-access-modal').classList.remove('hidden');
+        }
+
+        window.saveAdminAccessSettings = function() {
+            if (windowRole !== 'ADMINISTRATOR') return;
+            appData.accessPasswords = {
+                bphKetum: document.getElementById('pass-bph-ketum').value.trim(),
+                bphWaketum: document.getElementById('pass-bph-waketum').value.trim(),
+                bphSekre1: document.getElementById('pass-bph-sekre1').value.trim(),
+                bphSekre2: document.getElementById('pass-bph-sekre2').value.trim(),
+                bend1: document.getElementById('pass-bend-1').value.trim(),
+                bend2: document.getElementById('pass-bend-2').value.trim(),
+                pembina: document.getElementById('pass-pembina').value.trim(),
+                admin: document.getElementById('pass-admin').value.trim()
+            };
+            saveDataWithPopup("Konfigurasi akses & sandi user berhasil diperbarui!");
+            closeModal('admin-access-modal');
+        }
+
         function canManageColumnsOrExpenses() {
             if (windowRole === 'ADMINISTRATOR') return true;
             if (windowRole === 'BENDAHARA') return true;
-            if (windowRole === 'BPH' && activeSessionUser === 'KETUMKA') return true;
+            if (windowRole === 'BPH' && activeSessionUser === (appData.accessPasswords?.bphKetum || 'KETUMKA')) return true;
             return false;
         }
 
         function applyRolePermissions() {
             const isGuest = (windowRole === 'PUBLIC');
             const isPembina = (windowRole === 'PEMBINA');
-            const isNonKetumBph = (windowRole === 'BPH' && activeSessionUser !== 'KETUMKA');
+            const isAdmin = (windowRole === 'ADMINISTRATOR');
+            const isNonKetumBph = (windowRole === 'BPH' && activeSessionUser !== (appData.accessPasswords?.bphKetum || 'KETUMKA'));
             
             const adminContainer = document.getElementById('admin-actions-container');
             const btnAddStudent = document.getElementById('btn-add-student');
@@ -731,12 +889,19 @@
             const btnDeleteStudent = document.getElementById('btn-delete-student');
             const btnExpense = document.getElementById('btn-expense');
             const btnExportExcel = document.getElementById('btn-export-excel');
+            const btnAdminAccess = document.getElementById('btn-admin-access');
             const guestWarningBanner = document.getElementById('guest-warning-banner');
 
             if (isGuest) {
                 if (guestWarningBanner) guestWarningBanner.style.display = 'flex';
             } else {
                 if (guestWarningBanner) guestWarningBanner.style.display = 'none';
+            }
+
+            if (isAdmin) {
+                if (btnAdminAccess) btnAdminAccess.classList.remove('hidden');
+            } else {
+                if (btnAdminAccess) btnAdminAccess.classList.add('hidden');
             }
 
             if (isGuest) {
@@ -763,7 +928,7 @@
                 showToast("Akses ditolak! Silakan klik tombol 'Login Otoritas' di kanan atas untuk masuk.", "error");
                 return false;
             }
-            if (windowRole === 'PEMBINA' || (windowRole === 'BPH' && activeSessionUser !== 'KETUMKA')) {
+            if (windowRole === 'PEMBINA' || (windowRole === 'BPH' && activeSessionUser !== (appData.accessPasswords?.bphKetum || 'KETUMKA'))) {
                 showToast("Akses dibatasi! Peran Anda hanya diizinkan mengekspor laporan dan mengirimkan kritik/saran.", "error");
                 return false;
             }
@@ -903,9 +1068,9 @@
             const tabHeaderInfo = document.getElementById('active-tab-header-info');
             
             const isGuest = (windowRole === 'PUBLIC');
-            const isRestricted = (windowRole === 'PEMBINA' || (windowRole === 'BPH' && activeSessionUser !== 'KETUMKA'));
+            const isRestricted = (windowRole === 'PEMBINA' || (windowRole === 'BPH' && activeSessionUser !== (appData.accessPasswords?.bphKetum || 'KETUMKA')));
             const canManageCells = !isGuest && !isRestricted;
-            const canDeleteStudent = (windowRole === 'ADMINISTRATOR' || windowRole === 'BENDAHARA' || (windowRole === 'BPH' && activeSessionUser === 'KETUMKA'));
+            const canDeleteStudent = (windowRole === 'ADMINISTRATOR' || windowRole === 'BENDAHARA' || (windowRole === 'BPH' && activeSessionUser === (appData.accessPasswords?.bphKetum || 'KETUMKA')));
 
             if (!activeTabColId || !appData.columns[activeTabColId]) {
                 tbody.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-slate-400">Silakan pilih halaman kas di atas.</td></tr>`;
@@ -1102,7 +1267,7 @@
 
             const historyList = document.getElementById('pay-history-list');
             const history = (typeof cellData === 'object' && cellData.history) ? cellData.history : [];
-            const isAdminOrBendahara = (windowRole === 'ADMINISTRATOR' || windowRole === 'BENDAHARA' || (windowRole === 'BPH' && activeSessionUser === 'KETUMKA'));
+            const isAdminOrBendahara = (windowRole === 'ADMINISTRATOR' || windowRole === 'BENDAHARA' || (windowRole === 'BPH' && activeSessionUser === (appData.accessPasswords?.bphKetum || 'KETUMKA')));
 
             if (history.length === 0) {
                 historyList.innerHTML = `<div class="text-slate-400 text-center py-2">Belum ada riwayat cicilan.</div>`;
@@ -1165,7 +1330,7 @@
         function renderPembinaPanel() {
             const panel = document.getElementById('pembina-feedback-panel');
             const notes = appData.pembinaNotes || {};
-            const canDeleteNote = windowRole === 'ADMINISTRATOR' || windowRole === 'PEMBINA' || (windowRole === 'BPH' && activeSessionUser === 'KETUMKA');
+            const canDeleteNote = windowRole === 'ADMINISTRATOR' || windowRole === 'PEMBINA' || (windowRole === 'BPH' && activeSessionUser === (appData.accessPasswords?.bphKetum || 'KETUMKA'));
 
             const isGuest = (windowRole === 'PUBLIC');
             let nameInputHtml = '';
