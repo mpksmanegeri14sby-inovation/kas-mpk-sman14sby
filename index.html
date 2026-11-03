@@ -143,7 +143,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
                     <div class="p-2.5 rounded-xl bg-black/30 border border-white/5 flex items-start gap-2">
                         <i class="fa-solid fa-users-gear text-amber-400 mt-0.5"></i>
-                        <span><strong>Pengaturan Akses User:</strong> Ubah kunci sandi, atur hak akses peran secara real-time.</span>
+                        <span><strong>Pengaturan Sandi & Akses:</strong> Atur sandi dan pilih tingkat hak akses (Penuh / Sebagian / Terbatas) setiap peran.</span>
                     </div>
                     <div class="p-2.5 rounded-xl bg-black/30 border border-white/5 flex items-start gap-2">
                         <i class="fa-solid fa-database text-amber-400 mt-0.5"></i>
@@ -166,7 +166,7 @@
         </div>
     </div>
 
-    <!-- MODAL: PENGATURAN AKSES USER (KHUSUS ADMIN) -->
+    <!-- MODAL: PENGATURAN AKSES USER & SANDI (KHUSUS ADMIN) -->
     <div id="admin-access-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md hidden px-4">
         <div class="mpk-card p-6 sm:p-7 rounded-3xl max-w-xl w-full border border-amber-500/40 shadow-2xl space-y-4">
             <div class="flex items-center justify-between pb-3 border-b border-white/10">
@@ -175,49 +175,89 @@
                         <i class="fa-solid fa-users-gear text-sm"></i>
                     </div>
                     <div>
-                        <h3 class="text-xs sm:text-sm font-bold text-amber-400 uppercase tracking-wider">Pengaturan Akses Pengguna & Peran</h3>
-                        <p class="text-[10px] text-slate-400">Kelola kunci sandi & hak akses otoritas sistem</p>
+                        <h3 class="text-xs sm:text-sm font-bold text-amber-400 uppercase tracking-wider">Pengaturan Sandi & Tingkat Akses User</h3>
+                        <p class="text-[10px] text-slate-400">Atur sandi serta wewenang (Penuh, Sebagian, Terbatas)</p>
                     </div>
                 </div>
                 <button onclick="closeModal('admin-access-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div class="space-y-3 text-xs">
                 <p class="text-slate-300 leading-relaxed">
-                    Sebagai <strong class="text-amber-400">Administrator</strong>, Anda dapat mengubah sandi dan konfigurasi akses masing-masing tingkat peran di bawah ini:
+                    Sebagai <strong class="text-amber-400">Administrator</strong>, Anda dapat mengubah sandi dan mengatur tingkat wewenang untuk masing-masing peran di bawah ini:
                 </p>
-                <div class="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+                <div class="space-y-3 max-h-72 overflow-y-auto pr-1">
+                    
+                    <!-- BPH -->
                     <div class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-amber-300">BPH (Badan Pengurus Harian)</span>
-                            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-mono">Sandi Individu BPH</span>
-                        </div>
+                        <span class="font-bold text-amber-300 block">BPH (Badan Pengurus Harian)</span>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300 font-mono">
-                            <div>Ketum (Vincent): <input type="text" id="pass-bph-ketum" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
-                            <div>Waketum (Oriana): <input type="text" id="pass-bph-waketum" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
-                            <div>Sekre 1 (Namira): <input type="text" id="pass-bph-sekre1" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
-                            <div>Sekre 2 (AIn): <input type="text" id="pass-bph-sekre2" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
+                            <div>
+                                Sandi Ketum (Vincent): 
+                                <input type="text" id="pass-bph-ketum" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5">
+                            </div>
+                            <div>
+                                Level Akses Ketum:
+                                <select id="level-bph-ketum" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5 font-sans">
+                                    <option value="FULL">Akses Penuh</option>
+                                    <option value="PARTIAL">Akses Sebagian</option>
+                                    <option value="LIMITED">Akses Terbatas</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- BENDAHARA -->
                     <div class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-amber-300">BENDAHARA</span>
-                            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-mono">Kelola Setoran & Kolom</span>
-                        </div>
+                        <span class="font-bold text-amber-300 block">BENDAHARA (Airin & Tyas)</span>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300 font-mono">
-                            <div>Bendahara 1 (Airin): <input type="text" id="pass-bend-1" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
-                            <div>Bendahara 2 (Tyas): <input type="text" id="pass-bend-2" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
+                            <div>
+                                Sandi Bendahara: 
+                                <input type="text" id="pass-bend-1" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5">
+                            </div>
+                            <div>
+                                Level Akses Bendahara:
+                                <select id="level-bend-1" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5 font-sans">
+                                    <option value="FULL">Akses Penuh</option>
+                                    <option value="PARTIAL">Akses Sebagian</option>
+                                    <option value="LIMITED">Akses Terbatas</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- PEMBINA -->
                     <div class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-amber-300">PEMBINA & ADMINISTRATOR</span>
-                            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-mono">Pengawas & Full Akses</span>
-                        </div>
+                        <span class="font-bold text-amber-300 block">PEMBINA (Pengawas)</span>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300 font-mono">
-                            <div>Sandi Pembina: <input type="text" id="pass-pembina" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
-                            <div>Sandi Admin: <input type="text" id="pass-admin" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
+                            <div>
+                                Sandi Pembina: 
+                                <input type="text" id="pass-pembina" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5">
+                            </div>
+                            <div>
+                                Level Akses Pembina:
+                                <select id="level-pembina" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5 font-sans">
+                                    <option value="FULL">Akses Penuh</option>
+                                    <option value="PARTIAL">Akses Sebagian (Export, Navigasi)</option>
+                                    <option value="LIMITED">Akses Terbatas</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- ADMINISTRATOR -->
+                    <div class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
+                        <span class="font-bold text-amber-300 block">ADMINISTRATOR</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300 font-mono">
+                            <div>
+                                Sandi Admin: 
+                                <input type="text" id="pass-admin" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5">
+                            </div>
+                            <div>
+                                Level Akses: <span class="text-amber-400 font-bold block mt-1">FULL (Otomatis Penuh)</span>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
             <div class="flex justify-end space-x-2 pt-2 border-t border-white/10">
@@ -386,7 +426,7 @@
                 <div class="min-w-0">
                     <h1 class="text-xs sm:text-sm font-bold text-amber-400 tracking-wide truncate flex items-center gap-1.5 gold-glow">
                         KAS MPK 2026/2027
-                        <span class="hidden md:inline text-[9px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono font-semibold uppercase">v8.2</span>
+                        <span class="hidden md:inline text-[9px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono font-semibold uppercase">v8.3</span>
                     </h1>
                     <p class="text-[10px] sm:text-[11px] text-slate-400 flex items-center gap-1.5 sm:gap-2 mt-0.5">
                         <span id="current-role-badge" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono text-[9px]">Tamu (Read-Only)</span>
@@ -395,7 +435,7 @@
                 </div>
             </div>
             <div class="flex items-center space-x-1.5 sm:space-x-2.5 flex-shrink-0">
-                <!-- Tombol Pengaturan Akses User Khusus Admin -->
+                <!-- Tombol Pengaturan Akses & Sandi Khusus Admin -->
                 <button id="btn-admin-access" onclick="openAdminAccessModal()" class="px-2.5 sm:px-3 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-semibold flex items-center gap-1.5 transition-all hidden" title="Pengaturan Akses User">
                     <i class="fa-solid fa-users-gear text-amber-400"></i>
                     <span class="hidden lg:inline">Akses User</span>
@@ -419,7 +459,7 @@
     <!-- KONTEN UTAMA -->
     <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-5 sm:space-y-6">
 
-        <!-- BANNER PERINGATAN MODE TAMU / BELUM LOGIN -->
+        <!-- BANNER PERINGATAN MODE TAMU -->
         <div id="guest-warning-banner" class="mpk-card p-4 sm:p-5 rounded-2xl border border-amber-500/40 bg-gradient-to-r from-amber-950/40 via-[#10121a] to-amber-950/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xl">
             <div class="flex items-start sm:items-center space-x-3">
                 <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0 border border-amber-500/30">
@@ -490,7 +530,6 @@
 
             <!-- CONTAINER TAB TOMBOL HALAMAN -->
             <div id="tab-navigation-bar" class="flex flex-wrap items-center gap-2 pt-1 pb-2">
-                <!-- Tab Dirender Dinamis -->
             </div>
 
             <!-- KONTEN TAB AKTIF -->
@@ -708,7 +747,13 @@
                 bend2: 'TYAS', 
                 pembina: 'PEMBINA', 
                 admin: '999' 
-            } 
+            },
+            accessLevels: {
+                bphKetum: 'FULL',
+                bend1: 'FULL',
+                pembina: 'PARTIAL',
+                admin: 'FULL'
+            }
         };
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -740,6 +785,9 @@
                         appData.pembinaNotes = data.pembinaNotes || {};
                         if(data.accessPasswords) {
                             appData.accessPasswords = Object.assign(appData.accessPasswords, data.accessPasswords);
+                        }
+                        if(data.accessLevels) {
+                            appData.accessLevels = Object.assign(appData.accessLevels, data.accessLevels);
                         }
                     }
                     
@@ -854,46 +902,53 @@
                 return;
             }
             const p = appData.accessPasswords || {};
+            const lvl = appData.accessLevels || {};
+
             document.getElementById('pass-bph-ketum').value = p.bphKetum || 'KETUMKA';
-            document.getElementById('pass-bph-waketum').value = p.bphWaketum || 'WAKETUMKA';
-            document.getElementById('pass-bph-sekre1').value = p.bphSekre1 || 'SEKREMKA 1';
-            document.getElementById('pass-bph-sekre2').value = p.bphSekre2 || 'SKREMKA 2';
             document.getElementById('pass-bend-1').value = p.bend1 || 'AIRIN';
-            document.getElementById('pass-bend-2').value = p.bend2 || 'TYAS';
             document.getElementById('pass-pembina').value = p.pembina || 'PEMBINA';
             document.getElementById('pass-admin').value = p.admin || '999';
+
+            document.getElementById('level-bph-ketum').value = lvl.bphKetum || 'FULL';
+            document.getElementById('level-bend-1').value = lvl.bend1 || 'FULL';
+            document.getElementById('level-pembina').value = lvl.pembina || 'PARTIAL';
 
             document.getElementById('admin-access-modal').classList.remove('hidden');
         }
 
         window.saveAdminAccessSettings = function() {
             if (windowRole !== 'ADMINISTRATOR') return;
-            appData.accessPasswords = {
-                bphKetum: document.getElementById('pass-bph-ketum').value.trim() || 'KETUMKA',
-                bphWaketum: document.getElementById('pass-bph-waketum').value.trim() || 'WAKETUMKA',
-                bphSekre1: document.getElementById('pass-bph-sekre1').value.trim() || 'SEKREMKA 1',
-                bphSekre2: document.getElementById('pass-bph-sekre2').value.trim() || 'SKREMKA 2',
-                bend1: document.getElementById('pass-bend-1').value.trim() || 'AIRIN',
-                bend2: document.getElementById('pass-bend-2').value.trim() || 'TYAS',
-                pembina: document.getElementById('pass-pembina').value.trim() || 'PEMBINA',
-                admin: document.getElementById('pass-admin').value.trim() || '999'
-            };
-            saveDataWithPopup("Konfigurasi sandi dan hak akses user berhasil diperbarui!");
+
+            appData.accessPasswords.bphKetum = document.getElementById('pass-bph-ketum').value.trim() || 'KETUMKA';
+            appData.accessPasswords.bend1 = document.getElementById('pass-bend-1').value.trim() || 'AIRIN';
+            appData.accessPasswords.pembina = document.getElementById('pass-pembina').value.trim() || 'PEMBINA';
+            appData.accessPasswords.admin = document.getElementById('pass-admin').value.trim() || '999';
+
+            appData.accessLevels.bphKetum = document.getElementById('level-bph-ketum').value;
+            appData.accessLevels.bend1 = document.getElementById('level-bend-1').value;
+            appData.accessLevels.pembina = document.getElementById('level-pembina').value;
+
+            saveDataWithPopup("Konfigurasi sandi dan tingkat akses user berhasil diperbarui!");
             closeModal('admin-access-modal');
         }
 
+        function getCurrentRoleAccessLevel() {
+            if (windowRole === 'ADMINISTRATOR') return 'FULL';
+            if (windowRole === 'PUBLIC') return 'LIMITED';
+            if (windowRole === 'BPH') return appData.accessLevels?.bphKetum || 'FULL';
+            if (windowRole === 'BENDAHARA') return appData.accessLevels?.bend1 || 'FULL';
+            if (windowRole === 'PEMBINA') return appData.accessLevels?.pembina || 'PARTIAL';
+            return 'LIMITED';
+        }
+
         function canManageColumnsOrExpenses() {
-            if (windowRole === 'ADMINISTRATOR') return true;
-            if (windowRole === 'BENDAHARA') return true;
-            if (windowRole === 'BPH' && activeSessionUser === (appData.accessPasswords?.bphKetum || 'KETUMKA')) return true;
-            return false;
+            const lvl = getCurrentRoleAccessLevel();
+            return (lvl === 'FULL');
         }
 
         function applyRolePermissions() {
             const isGuest = (windowRole === 'PUBLIC');
-            const isPembina = (windowRole === 'PEMBINA');
-            const isAdmin = (windowRole === 'ADMINISTRATOR');
-            const isNonKetumBph = (windowRole === 'BPH' && activeSessionUser !== (appData.accessPasswords?.bphKetum || 'KETUMKA'));
+            const lvl = getCurrentRoleAccessLevel();
             
             const adminContainer = document.getElementById('admin-actions-container');
             const btnAddStudent = document.getElementById('btn-add-student');
@@ -910,45 +965,51 @@
                 if (guestWarningBanner) guestWarningBanner.style.display = 'none';
             }
 
-            if (isAdmin) {
+            if (windowRole === 'ADMINISTRATOR') {
                 if (btnAdminAccess) btnAdminAccess.classList.remove('hidden');
             } else {
                 if (btnAdminAccess) btnAdminAccess.classList.add('hidden');
             }
 
-            if (isGuest) {
-                if (adminContainer) adminContainer.classList.add('restricted-action');
-                if (btnExpense) btnExpense.classList.add('restricted-action');
-                if (btnExportExcel) btnExportExcel.classList.add('restricted-action');
-            } else if (isPembina || isNonKetumBph) {
-                if (adminContainer) adminContainer.classList.add('restricted-action');
-                if (btnExpense) btnExpense.classList.add('restricted-action');
-                if (btnExportExcel) btnExportExcel.classList.remove('restricted-action');
-            } else {
+            if (lvl === 'FULL') {
                 if (adminContainer) adminContainer.classList.remove('restricted-action');
                 if (btnAddStudent) btnAddStudent.style.display = 'flex';
                 if (btnAddColumn) btnAddColumn.style.display = 'flex';
                 if (btnDeleteStudent) btnDeleteStudent.style.display = 'flex';
                 if (btnExpense) btnExpense.classList.remove('restricted-action');
                 if (btnExportExcel) btnExportExcel.classList.remove('restricted-action');
+            } else if (lvl === 'PARTIAL') {
+                // Akses Sebagian: Bisa Export Excel & Merubah susunan/navigasi tab halaman (tetapi tidak mengubah data keuangan utama)
+                if (adminContainer) adminContainer.classList.remove('restricted-action');
+                if (btnAddStudent) btnAddStudent.style.display = 'none';
+                if (btnAddColumn) btnAddColumn.style.display = 'flex'; // Bisa buat/atur halaman navigasi
+                if (btnDeleteStudent) btnDeleteStudent.style.display = 'none';
+                if (btnExpense) btnExpense.classList.add('restricted-action');
+                if (btnExportExcel) btnExportExcel.classList.remove('restricted-action');
+            } else {
+                // Akses Terbatas / Limited (Read-Only)
+                if (adminContainer) adminContainer.classList.add('restricted-action');
+                if (btnExpense) btnExpense.classList.add('restricted-action');
+                if (btnExportExcel) btnExportExcel.classList.add('restricted-action');
             }
             renderAll();
         }
 
-        function checkPermission() {
-            if (windowRole === 'PUBLIC') {
-                showToast("Akses ditolak! Silakan klik tombol 'Login Otoritas' di kanan atas untuk masuk.", "error");
+        function checkPermission(requiredLevel = 'FULL') {
+            const lvl = getCurrentRoleAccessLevel();
+            if (lvl === 'LIMITED') {
+                showToast("Akses ditolak! Silakan login dengan wewenang yang memadai.", "error");
                 return false;
             }
-            if (windowRole === 'PEMBINA' || (windowRole === 'BPH' && activeSessionUser !== (appData.accessPasswords?.bphKetum || 'KETUMKA'))) {
-                showToast("Akses dibatasi! Peran Anda hanya diizinkan mengekspor laporan dan mengirimkan kritik/saran.", "error");
+            if (requiredLevel === 'FULL' && lvl !== 'FULL') {
+                showToast("Akses dibatasi! Peran Anda memiliki level Akses Sebagian.", "error");
                 return false;
             }
             return true;
         }
 
         function saveDataSilent() {
-            if (!checkPermission()) return;
+            if (!checkPermission('FULL')) return;
             if (database) {
                 database.ref('kas_mpk_2026_2027').set(appData);
             }
@@ -1025,7 +1086,8 @@
         function renderTabNavigation() {
             const tabBar = document.getElementById('tab-navigation-bar');
             const colEntries = Object.entries(appData.columns || {});
-            const canManageColumns = canManageColumnsOrExpenses();
+            const lvl = getCurrentRoleAccessLevel();
+            const canManageColumns = (lvl === 'FULL' || lvl === 'PARTIAL');
 
             if (colEntries.length === 0) {
                 tabBar.innerHTML = `<span class="text-xs text-slate-400 italic">Belum ada halaman kas yang dibuat.</span>`;
@@ -1047,7 +1109,7 @@
                         : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10'
                 }`;
                 
-                const deleteColBtn = (canManageColumns) ? `<button onclick="confirmDeleteColumn('${colId}')" class="${isActive ? 'text-slate-950 hover:text-rose-900' : 'text-rose-400 hover:text-rose-300'} px-1" title="Hapus Halaman"><i class="fa-solid fa-xmark text-[10px]"></i></button>` : '';
+                const deleteColBtn = canManageColumns ? `<button onclick="confirmDeleteColumn('${colId}')" class="${isActive ? 'text-slate-950 hover:text-rose-900' : 'text-rose-400 hover:text-rose-300'} px-1" title="Hapus Halaman"><i class="fa-solid fa-xmark text-[10px]"></i></button>` : '';
 
                 btn.innerHTML = `
                     <span onclick="switchTab('${colId}')" class="cursor-pointer flex items-center gap-1.5">
@@ -1077,10 +1139,9 @@
             const headerTitle = document.getElementById('tab-column-header-title');
             const tabHeaderInfo = document.getElementById('active-tab-header-info');
             
-            const isGuest = (windowRole === 'PUBLIC');
-            const isRestricted = (windowRole === 'PEMBINA' || (windowRole === 'BPH' && activeSessionUser !== (appData.accessPasswords?.bphKetum || 'KETUMKA')));
-            const canManageCells = !isGuest && !isRestricted;
-            const canDeleteStudent = (windowRole === 'ADMINISTRATOR' || windowRole === 'BENDAHARA' || (windowRole === 'BPH' && activeSessionUser === (appData.accessPasswords?.bphKetum || 'KETUMKA')));
+            const lvl = getCurrentRoleAccessLevel();
+            const canManageCells = (lvl === 'FULL');
+            const canDeleteStudent = (lvl === 'FULL');
 
             if (!activeTabColId || !appData.columns[activeTabColId]) {
                 tbody.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-slate-400">Silakan pilih halaman kas di atas.</td></tr>`;
@@ -1173,10 +1234,10 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-white/5 transition-all";
                 
-                const deleteStudentBtn = (canDeleteStudent && !isRestricted) ? `<button onclick="confirmDeleteStudent('${stId}')" class="w-7 h-7 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto transition-all" title="Hapus Anggota"><i class="fa-solid fa-trash text-[10px]"></i></button>` : '<span class="text-[10px] text-slate-500">-</span>';
+                const deleteStudentBtn = canDeleteStudent ? `<button onclick="confirmDeleteStudent('${stId}')" class="w-7 h-7 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto transition-all" title="Hapus Anggota"><i class="fa-solid fa-trash text-[10px]"></i></button>` : '<span class="text-[10px] text-slate-500">-</span>';
 
                 let rowHTML = `
-                    <td class="p-3 text-center sticky-col-1"><input type="checkbox" class="student-checkbox rounded border-slate-700 bg-slate-800 text-amber-500 cursor-pointer" value="${stId}" ${isGuest || isRestricted ? 'disabled' : ''}></td>
+                    <td class="p-3 text-center sticky-col-1"><input type="checkbox" class="student-checkbox rounded border-slate-700 bg-slate-800 text-amber-500 cursor-pointer" value="${stId}" ${lvl === 'LIMITED' ? 'disabled' : ''}></td>
                     <td class="p-3 text-center font-mono text-slate-400 sticky-col-2">${index + 1}</td>
                     <td class="p-3 font-semibold text-white sticky-col-3">
                         <div>${escapeHtml(st.name)}</div>
@@ -1253,7 +1314,7 @@
         let currentPayColId = null;
 
         window.openPaymentModal = function(studentId, colId) {
-            if (!canManageColumnsOrExpenses() && windowRole !== 'ADMINISTRATOR') {
+            if (!canManageColumnsOrExpenses()) {
                 showToast("Akses ditolak!", "error");
                 return;
             }
@@ -1277,7 +1338,7 @@
 
             const historyList = document.getElementById('pay-history-list');
             const history = (typeof cellData === 'object' && cellData.history) ? cellData.history : [];
-            const isAdminOrBendahara = (windowRole === 'ADMINISTRATOR' || windowRole === 'BENDAHARA' || (windowRole === 'BPH' && activeSessionUser === (appData.accessPasswords?.bphKetum || 'KETUMKA')));
+            const canDeleteHistory = (getCurrentRoleAccessLevel() === 'FULL');
 
             if (history.length === 0) {
                 historyList.innerHTML = `<div class="text-slate-400 text-center py-2">Belum ada riwayat cicilan.</div>`;
@@ -1287,7 +1348,7 @@
                     const div = document.createElement('div');
                     div.className = "flex items-center justify-between bg-white/5 p-2 rounded-lg text-xs";
                     
-                    const deleteHistoryBtn = isAdminOrBendahara ? `<button onclick="deletePaymentHistory('${studentId}', '${colId}', ${idx})" class="text-rose-400 hover:text-rose-300 px-1.5 py-1" title="Hapus Riwayat"><i class="fa-solid fa-trash text-[10px]"></i></button>` : '';
+                    const deleteHistoryBtn = canDeleteHistory ? `<button onclick="deletePaymentHistory('${studentId}', '${colId}', ${idx})" class="text-rose-400 hover:text-rose-300 px-1.5 py-1" title="Hapus Riwayat"><i class="fa-solid fa-trash text-[10px]"></i></button>` : '';
 
                     div.innerHTML = `
                         <div>
@@ -1305,7 +1366,7 @@
 
         window.handlePaymentSubmit = function(e) {
             e.preventDefault();
-            if (!canManageColumnsOrExpenses() && windowRole !== 'ADMINISTRATOR') return;
+            if (!canManageColumnsOrExpenses()) return;
             const amount = Number(document.getElementById('pay-amount').value) || 0;
             const date = document.getElementById('pay-date').value;
             const note = document.getElementById('pay-note').value;
@@ -1340,7 +1401,8 @@
         function renderPembinaPanel() {
             const panel = document.getElementById('pembina-feedback-panel');
             const notes = appData.pembinaNotes || {};
-            const canDeleteNote = windowRole === 'ADMINISTRATOR' || windowRole === 'PEMBINA' || (windowRole === 'BPH' && activeSessionUser === (appData.accessPasswords?.bphKetum || 'KETUMKA'));
+            const lvl = getCurrentRoleAccessLevel();
+            const canDeleteNote = (lvl === 'FULL' || windowRole === 'PEMBINA');
 
             const isGuest = (windowRole === 'PUBLIC');
             let nameInputHtml = '';
@@ -1438,13 +1500,13 @@
         }
 
         window.toggleSelectAll = function(master) {
-            if (!canManageColumnsOrExpenses() && windowRole !== 'ADMINISTRATOR') { master.checked = false; return; }
+            if (!canManageColumnsOrExpenses()) { master.checked = false; return; }
             const checkboxes = document.querySelectorAll('.student-checkbox');
             checkboxes.forEach(cb => cb.checked = master.checked);
         }
 
         window.updateCheckCell = function(stId, colId, checked) {
-            if (!canManageColumnsOrExpenses() && windowRole !== 'ADMINISTRATOR') return;
+            if (!canManageColumnsOrExpenses()) return;
             if (!appData.matrixData[stId]) appData.matrixData[stId] = {};
             let cellData = appData.matrixData[stId][colId];
             if (!cellData || typeof cellData !== 'object') cellData = {};
@@ -1454,7 +1516,7 @@
         }
 
         window.updateTextCell = function(stId, colId, text) {
-            if (!canManageColumnsOrExpenses() && windowRole !== 'ADMINISTRATOR') return;
+            if (!canManageColumnsOrExpenses()) return;
             if (!appData.matrixData[stId]) appData.matrixData[stId] = {};
             let cellData = appData.matrixData[stId][colId];
             if (!cellData || typeof cellData !== 'object') cellData = {};
@@ -1589,8 +1651,9 @@
         }
 
         window.openAddColumnModal = function() {
-            if (!canManageColumnsOrExpenses()) {
-                showToast("Akses ditolak! Peran Anda tidak memiliki izin untuk membuat halaman kas baru.", "error");
+            const lvl = getCurrentRoleAccessLevel();
+            if (lvl === 'LIMITED') {
+                showToast("Akses ditolak!", "error");
                 return;
             }
             document.getElementById('col-title').value = "";
@@ -1614,20 +1677,22 @@
 
         window.handleColumnSubmit = function(e) {
             e.preventDefault();
-            if (!canManageColumnsOrExpenses()) return;
+            const lvl = getCurrentRoleAccessLevel();
+            if (lvl === 'LIMITED') return;
             const title = document.getElementById('col-title').value.trim();
             const type = document.getElementById('col-type').value;
             const targetAmount = Number(document.getElementById('col-target-amount').value) || 0;
             const colId = `col_${Date.now()}`;
             appData.columns[colId] = { title, type, targetAmount };
             activeTabColId = colId;
-            saveDataWithPopup("Halaman kas baru berhasil dibuat!");
+            saveDataWithPopup("Halaman kas baru berhasil dibuat / navigasi diperbarui!");
             closeModal('column-modal');
         }
 
         window.confirmDeleteColumn = function(colId) {
-            if (!canManageColumnsOrExpenses()) {
-                showToast("Akses ditolak! Peran Anda tidak memiliki izin untuk menghapus halaman kas.", "error");
+            const lvl = getCurrentRoleAccessLevel();
+            if (lvl === 'LIMITED') {
+                showToast("Akses ditolak!", "error");
                 return;
             }
             showModalConfirm("Hapus Halaman", "Hapus halaman kas ini beserta seluruh datanya?", () => {
@@ -1641,7 +1706,7 @@
 
         window.openExpenseModal = function() {
             if (!canManageColumnsOrExpenses()) {
-                showToast("Akses ditolak! Hanya Administrator dan Bendahara yang berhak mencatat pengeluaran.", "error");
+                showToast("Akses ditolak! Hanya level Akses Penuh yang berhak mencatat pengeluaran.", "error");
                 return;
             }
             document.getElementById('exp-date').valueAsDate = new Date();
@@ -1674,8 +1739,9 @@
         }
 
         window.exportExcel = function() {
-            if (windowRole === 'PUBLIC') {
-                showToast("Akses ditolak!", "error");
+            const lvl = getCurrentRoleAccessLevel();
+            if (lvl === 'LIMITED') {
+                showToast("Akses ditolak! Peran Anda berstatus Akses Terbatas.", "error");
                 return;
             }
             try {
@@ -1784,7 +1850,7 @@
             if(!container) return;
             const t = document.createElement('div');
             t.className = `mpk-card px-4 py-3 rounded-xl border ${type==='success'?'border-amber-500/30 text-amber-300 bg-amber-950/40':'border-rose-500/30 text-rose-300 bg-rose-950/40'} shadow-lg text-xs flex items-center space-x-3 pointer-events-auto`;
-            t.innerHTML = `<i class="fa-solid ${type==='success'?'fa-landmark text-amber-400':'fa-circle-exclamation text-rose-400'}"><span>${escapeHtml(msg)}</span>`;
+            t.innerHTML = `<i class="fa-solid ${type==='success'?'fa-landmark text-amber-400':'fa-circle-exclamation text-rose-400'}"></i><span>${escapeHtml(msg)}</span>`;
             container.appendChild(t);
             setTimeout(() => t.remove(), 3500);
         }
