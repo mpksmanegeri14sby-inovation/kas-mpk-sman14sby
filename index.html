@@ -12,9 +12,11 @@
             theme: {
                 extend: {
                     colors: {
-                        mpkDark: '#07080b',
-                        mpkCard: '#10121a',
+                        mpkDark: '#090a0f',
+                        mpkCard: 'rgba(16, 18, 26, 0.95)',
                         goldRoyal: '#c5a059',
+                        goldLight: '#e6c584',
+                        goldDark: '#997532',
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
@@ -24,7 +26,7 @@
             }
         }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -34,26 +36,60 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #07080b;
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(197, 160, 89, 0.08) 0px, transparent 40%),
+                radial-gradient(at 90% 90%, rgba(15, 23, 42, 0.6) 0px, transparent 50%);
+            background-attachment: fixed;
             color: #f1f5f9;
             min-height: 100vh;
         }
         .mpk-card {
-            background: #10121a;
-            border: 1px solid rgba(197, 160, 89, 0.2);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            background: rgba(16, 18, 26, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(197, 160, 89, 0.25);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
         }
         .mpk-input {
-            background: #171a26;
+            background: rgba(25, 28, 38, 0.8);
             border: 1px solid rgba(197, 160, 89, 0.3);
             color: #fef08a;
         }
         .mpk-input:focus {
             outline: none;
             border-color: #c5a059;
-            box-shadow: 0 0 10px rgba(197, 160, 89, 0.3);
+            box-shadow: 0 0 15px rgba(197, 160, 89, 0.4);
         }
         .gold-glow {
-            text-shadow: 0 0 15px rgba(197, 160, 89, 0.4);
+            text-shadow: 0 0 20px rgba(197, 160, 89, 0.5);
+        }
+        .cinematic-intro {
+            animation: introFadeOut 0.8s cubic-bezier(0.77, 0, 0.175, 1) 2.2s forwards;
+        }
+        @keyframes introFadeOut {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.04); pointer-events: none; visibility: hidden; }
+        }
+        .admin-intro-anim {
+            animation: adminIntroScale 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes adminIntroScale {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .intro-logo-glow {
+            animation: logoPulse 2s infinite ease-in-out;
+        }
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 25px rgba(197, 160, 89, 0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 0 45px rgba(197, 160, 89, 0.6); }
+        }
+        .gopay-popup {
+            animation: popUpScale 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes popUpScale {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
         .restricted-action {
             opacity: 0.35;
@@ -63,306 +99,632 @@
         .sticky-col-1 { position: sticky; left: 0; z-index: 20; background-color: #10121a; }
         .sticky-col-2 { position: sticky; left: 48px; z-index: 20; background-color: #10121a; }
         .sticky-col-3 { position: sticky; left: 92px; z-index: 20; background-color: #10121a; }
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #07080b; }
         ::-webkit-scrollbar-thumb { background: rgba(197, 160, 89, 0.3); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #c5a059; }
     </style>
 </head>
 <body class="selection:bg-amber-500 selection:text-black pb-16">
 
     <!-- Toast Container -->
-    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none max-w-xs sm:max-w-sm"></div>
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-3 pointer-events-none max-w-xs sm:max-w-sm"></div>
+
+    <!-- CINEMATIC INTRO -->
+    <div id="intro-splash" class="fixed inset-0 z-50 bg-[#040507] flex flex-col items-center justify-center cinematic-intro">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-amber-600/10 via-transparent to-transparent"></div>
+        <div class="text-center space-y-4 px-4 relative z-10">
+            <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-amber-500/20 via-amber-600/10 to-transparent p-1.5 flex items-center justify-center border border-amber-500/50 mx-auto shadow-2xl intro-logo-glow">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEggOVEdiqt_meBX3MZTWLxNQtkUwvRk2eJpKGnWXl6-HBUvCJEzwsn99bo2t1LYwJJEAvdhmw311dcNCO3BtNpDfZXEeeIA71Wp6ma5Exfo8R0cBS78Ex3oU0OH-yTG4kqeyYQXap7vD4HqRVevEQuLoF3ZmpAsSLae54ZpUaCaEusoNmmbIYLs0tECUqM/s320/310820414_118949974297968_1352755040497620274_n.jpg" alt="Logo MPK" class="w-full h-full object-cover rounded-2xl">
+            </div>
+            <div class="space-y-1">
+                <h1 class="text-lg sm:text-xl font-extrabold text-amber-400 tracking-wider gold-glow">KAS MPK 2026/2027</h1>
+                <p class="text-[10px] sm:text-xs text-amber-200/70 font-mono tracking-[0.2em] uppercase">SMAN 14 SURABAYA</p>
+            </div>
+            <div class="w-48 sm:w-56 h-1.5 bg-white/10 rounded-full mx-auto overflow-hidden p-0.5 border border-amber-500/20">
+                <div id="intro-progress" class="w-0 h-full bg-gradient-to-r from-amber-600 via-amber-400 to-amber-200 rounded-full transition-all duration-300"></div>
+            </div>
+        </div>
+    </div>
 
     <!-- ADMIN INTRO MODAL -->
-    <div id="admin-intro-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/9onda backdrop-blur-md hidden px-4">
-        <div class="mpk-card p-6 sm:p-7 rounded-2xl max-w-lg w-full border border-amber-500/50 space-y-4">
-            <div class="text-center space-y-1.5">
-                <div class="w-14 h-14 rounded-2xl bg-amber-500/20 flex items-center justify-center border border-amber-500/40 mx-auto text-amber-400 text-2xl font-bold">
-                    <i class="fa-solid fa-crown"></i>
+    <div id="admin-intro-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-2xl hidden px-4">
+        <div class="mpk-card p-6 sm:p-8 rounded-3xl max-w-xl w-full border border-amber-500/60 shadow-2xl shadow-amber-500/30 admin-intro-anim space-y-5 relative overflow-hidden">
+            <div class="absolute -top-24 -right-24 w-48 h-48 bg-amber-600/20 rounded-full blur-3xl"></div>
+            <div class="text-center space-y-2 relative z-10">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-amber-500/30 to-amber-700/10 flex items-center justify-center border border-amber-500/50 shadow-xl mx-auto intro-logo-glow">
+                    <i class="fa-solid fa-crown text-2xl sm:text-3xl text-amber-400"></i>
                 </div>
-                <h2 class="text-sm sm:text-base font-bold text-amber-400 tracking-wider gold-glow uppercase">Pusat Kendali Administrator</h2>
-                <p class="text-[11px] text-slate-400 font-mono">Sistem Pengawasan & Keuangan Parlemen SMAN 14 Surabaya</p>
+                <h2 class="text-base sm:text-lg font-extrabold text-amber-400 tracking-wider gold-glow uppercase">Pusat Kendali Administrator</h2>
+                <p class="text-[11px] sm:text-xs text-amber-200/80 font-mono">Sistem Pengawasan & Keuangan Parlemen SMAN 14 Surabaya</p>
             </div>
-            <button onclick="closeAdminIntroModal()" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition-all">
-                Masuk Dashboard Administrator
+            <div class="space-y-3 bg-white/5 p-4 rounded-2xl border border-white/10 text-xs text-slate-300 relative z-10">
+                <p class="font-bold text-amber-300 flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles"></i> Hak Istimewa & Fungsi Utama Admin:</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                    <div class="p-2.5 rounded-xl bg-black/30 border border-white/5 flex items-start gap-2">
+                        <i class="fa-solid fa-users-gear text-amber-400 mt-0.5"></i>
+                        <span><strong>Pengaturan Sandi & Akses:</strong> Atur sandi dan pilih tingkat hak akses (Penuh / Sebagian / Terbatas) setiap peran.</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-black/30 border border-white/5 flex items-start gap-2">
+                        <i class="fa-solid fa-database text-amber-400 mt-0.5"></i>
+                        <span><strong>Kontrol Penuh Data:</strong> Tambah/hapus halaman kas & kelola daftar anggota.</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-black/30 border border-white/5 flex items-start gap-2">
+                        <i class="fa-solid fa-file-excel text-amber-400 mt-0.5"></i>
+                        <span><strong>Ekspor & Keamanan:</strong> Cetak laporan Excel resmi dengan enkripsi sandi aktif.</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-black/30 border border-white/5 flex items-start gap-2">
+                        <i class="fa-solid fa-comments text-amber-400 mt-0.5"></i>
+                        <span><strong>Moderasi Aspirasi:</strong> Kelola masukan & kritik pembina/tamu secara transparan.</span>
+                    </div>
+                </div>
+            </div>
+            <button onclick="closeAdminIntroModal()" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 text-slate-950 font-bold text-xs shadow-lg hover:from-amber-500 hover:to-yellow-500 transition-all uppercase tracking-wider relative z-10 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-rocket"></i>
+                <span>Masuk Dashboard Administrator</span>
             </button>
         </div>
     </div>
 
-    <!-- MODAL: PENGATURAN AKSES USER -->
-    <div id="admin-access-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden px-4">
-        <div class="mpk-card p-6 rounded-2xl max-w-lg w-full border border-amber-500/40 space-y-4">
+    <!-- MODAL: PENGATURAN AKSES USER & SANDI (KHUSUS ADMIN) -->
+    <div id="admin-access-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md hidden px-4">
+        <div class="mpk-card p-6 sm:p-7 rounded-3xl max-w-xl w-full border border-amber-500/40 shadow-2xl space-y-4">
             <div class="flex items-center justify-between pb-3 border-b border-white/10">
-                <h3 class="text-xs sm:text-sm font-bold text-amber-400 uppercase tracking-wider">Pengaturan Sandi & Akses</h3>
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
+                        <i class="fa-solid fa-users-gear text-sm"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs sm:text-sm font-bold text-amber-400 uppercase tracking-wider">Pengaturan Sandi & Tingkat Akses User</h3>
+                        <p class="text-[10px] text-slate-400">Atur sandi serta wewenang (Penuh, Sebagian, Terbatas)</p>
+                    </div>
+                </div>
                 <button onclick="closeModal('admin-access-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div class="space-y-3 text-xs max-h-64 overflow-y-auto pr-1">
-                <div class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1.5">
-                    <span class="font-bold text-amber-300">BPH (Ketua Umum)</span>
-                    <input type="text" id="pass-bph-ketum" class="w-full px-2 py-1.5 rounded mpk-input text-xs font-mono">
-                </div>
-                <div class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1.5">
-                    <span class="font-bold text-amber-300">Bendahara</span>
-                    <input type="text" id="pass-bend-1" class="w-full px-2 py-1.5 rounded mpk-input text-xs font-mono">
-                </div>
-                <div class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1.5">
-                    <span class="font-bold text-amber-300">Pembina</span>
-                    <input type="text" id="pass-pembina" class="w-full px-2 py-1.5 rounded mpk-input text-xs font-mono">
-                </div>
-                <div class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1.5">
-                    <span class="font-bold text-amber-300">Administrator</span>
-                    <input type="text" id="pass-admin" class="w-full px-2 py-1.5 rounded mpk-input text-xs font-mono">
+            <div class="space-y-3 text-xs">
+                <p class="text-slate-300 leading-relaxed">
+                    Sebagai <strong class="text-amber-400">Administrator</strong>, Anda dapat mengubah sandi dan mengatur tingkat wewenang untuk masing-masing peran di bawah ini:
+                </p>
+                <div class="space-y-3 max-h-72 overflow-y-auto pr-1">
+                    
+                    <!-- BPH -->
+                    <div class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
+                        <span class="font-bold text-amber-300 block">BPH (Badan Pengurus Harian)</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300 font-mono">
+                            <div>
+                                Sandi Ketum (Vincent): 
+                                <input type="text" id="pass-bph-ketum" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5">
+                            </div>
+                            <div>
+                                Level Akses Ketum:
+                                <select id="level-bph-ketum" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5 font-sans">
+                                    <option value="FULL">Akses Penuh</option>
+                                    <option value="PARTIAL">Akses Sebagian</option>
+                                    <option value="LIMITED">Akses Terbatas</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BENDAHARA -->
+                    <div class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
+                        <span class="font-bold text-amber-300 block">BENDAHARA (Airin & Tyas)</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300 font-mono">
+                            <div>
+                                Sandi Bendahara: 
+                                <input type="text" id="pass-bend-1" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5">
+                            </div>
+                            <div>
+                                Level Akses Bendahara:
+                                <select id="level-bend-1" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5 font-sans">
+                                    <option value="FULL">Akses Penuh</option>
+                                    <option value="PARTIAL">Akses Sebagian</option>
+                                    <option value="LIMITED">Akses Terbatas</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PEMBINA -->
+                    <div class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
+                        <span class="font-bold text-amber-300 block">PEMBINA (Pengawas)</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300 font-mono">
+                            <div>
+                                Sandi Pembina: 
+                                <input type="text" id="pass-pembina" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5">
+                            </div>
+                            <div>
+                                Level Akses Pembina:
+                                <select id="level-pembina" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5 font-sans">
+                                    <option value="FULL">Akses Penuh</option>
+                                    <option value="PARTIAL">Akses Sebagian (Export, Navigasi)</option>
+                                    <option value="LIMITED">Akses Terbatas</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ADMINISTRATOR -->
+                    <div class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
+                        <span class="font-bold text-amber-300 block">ADMINISTRATOR</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300 font-mono">
+                            <div>
+                                Sandi Admin: 
+                                <input type="text" id="pass-admin" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5">
+                            </div>
+                            <div>
+                                Level Akses: <span class="text-amber-400 font-bold block mt-1">FULL (Otomatis Penuh)</span>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
             <div class="flex justify-end space-x-2 pt-2 border-t border-white/10">
-                <button onclick="closeModal('admin-access-modal')" class="px-3 py-2 rounded-xl text-xs text-slate-300 hover:bg-white/5">Batal</button>
-                <button onclick="saveAdminAccessSettings()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs">Simpan</button>
+                <button type="button" onclick="closeModal('admin-access-modal')" class="px-3.5 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-white/5">Batal</button>
+                <button type="button" onclick="saveAdminAccessSettings()" class="px-4.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-xs shadow-lg">Simpan Konfigurasi</button>
             </div>
+        </div>
+    </div>
+
+    <!-- LOADING OVERLAY -->
+    <div id="loading-overlay" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex flex-col items-center justify-center hidden">
+        <div class="mpk-card p-6 rounded-3xl border border-amber-500/40 flex flex-col items-center space-y-3 shadow-2xl shadow-amber-500/10">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 border-4 border-amber-500/20 border-t-amber-400 rounded-full animate-spin"></div>
+            <p class="text-xs font-semibold text-amber-300 tracking-wide font-mono">Sinkronisasi Data...</p>
         </div>
     </div>
 
     <!-- SUCCESS POPUP -->
-    <div id="success-gopay-popup" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden px-4">
-        <div class="mpk-card p-6 rounded-2xl max-w-xs w-full border border-amber-500/40 text-center space-y-3">
-            <div class="w-12 h-12 mx-auto rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400 text-xl font-bold border border-amber-500/40">
-                <i class="fa-solid fa-check"></i>
+    <div id="success-gopay-popup" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden px-4">
+        <div class="mpk-card p-6 sm:p-8 rounded-3xl max-w-sm w-full border border-amber-500/40 text-center space-y-4 gopay-popup">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 mx-auto rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/40 shadow-lg shadow-amber-500/20 animate-bounce">
+                <svg class="w-8 h-8 sm:w-10 sm:h-10 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                </svg>
             </div>
-            <h3 class="text-sm font-bold text-amber-400">BERHASIL</h3>
-            <p id="gopay-popup-desc" class="text-xs text-slate-300 font-mono">Perubahan berhasil dicatat.</p>
-            <button onclick="closeGopayPopup()" class="w-full py-2 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs">Selesai</button>
+            <div>
+                <h3 class="text-sm sm:text-base font-bold text-amber-400 tracking-wide gold-glow">DATA BERHASIL DISIMPAN</h3>
+                <p id="gopay-popup-desc" class="text-xs text-slate-300 mt-1 font-mono">Perubahan berhasil dicatat.</p>
+            </div>
+            <button onclick="closeGopayPopup()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 text-slate-950 font-bold text-xs shadow-lg hover:from-amber-500 hover:to-amber-400 transition-all">
+                Selesai
+            </button>
+        </div>
+    </div>
+
+    <!-- LOGIN SUCCESS POPUP -->
+    <div id="success-login-popup" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md hidden px-4">
+        <div class="mpk-card p-6 sm:p-8 rounded-3xl max-w-sm w-full border border-amber-500/50 text-center space-y-4 gopay-popup shadow-2xl shadow-amber-500/30">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 mx-auto rounded-full bg-gradient-to-br from-amber-500/20 to-yellow-600/10 flex items-center justify-center border border-amber-500/50 shadow-lg animate-pulse">
+                <i class="fa-solid fa-shield-halved text-xl sm:text-2xl text-amber-400"></i>
+            </div>
+            <div>
+                <h3 class="text-sm sm:text-base font-bold text-amber-400 tracking-wider gold-glow">OTORISASI BERHASIL</h3>
+                <p id="login-success-desc" class="text-xs text-slate-300 mt-1 font-mono">Akses peran berhasil diaktifkan.</p>
+            </div>
+            <button onclick="closeLoginSuccessPopup()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 text-slate-950 font-bold text-xs shadow-lg hover:from-amber-500 hover:to-amber-400 transition-all">
+                Masuk ke Dashboard
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL KONFIRMASI -->
+    <div id="custom-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden px-4">
+        <div class="mpk-card p-5 sm:p-6 rounded-2xl max-w-md w-full border border-amber-500/30 shadow-2xl">
+            <div class="flex items-center space-x-3 mb-3">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center bg-amber-500/20 text-amber-400">
+                    <i class="fa-solid fa-triangle-exclamation text-sm"></i>
+                </div>
+                <div>
+                    <h3 id="modal-title" class="text-xs sm:text-sm font-bold text-amber-400 uppercase tracking-wider">Konfirmasi Sistem</h3>
+                    <p class="text-[10px] text-slate-400">Pengesahan data administratif</p>
+                </div>
+            </div>
+            <p id="modal-message" class="text-xs text-slate-300 mb-5 leading-relaxed">Apakah Anda yakin?</p>
+            <div class="flex justify-end space-x-2">
+                <button id="modal-cancel" class="px-3.5 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-white/5">Batal</button>
+                <button id="modal-confirm" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-slate-950 shadow-lg">Konfirmasi</button>
+            </div>
         </div>
     </div>
 
     <!-- LOGIN MODAL -->
-    <div id="login-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md hidden px-4">
-        <div class="mpk-card p-6 rounded-2xl max-w-sm w-full border border-amber-500/30 space-y-4">
-            <div class="text-center">
-                <h2 class="text-sm font-bold text-amber-400 tracking-wide gold-glow">OTORISASI KAS MPK</h2>
-                <p class="text-[10px] text-slate-400 font-mono mt-0.5">SMAN 14 SURABAYA</p>
+    <div id="login-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-xl hidden px-4">
+        <div class="mpk-card p-6 sm:p-8 rounded-3xl max-w-md w-full border border-amber-500/30 shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-16 -right-16 w-36 h-36 bg-amber-600/10 rounded-full blur-3xl"></div>
+            <div class="text-center mb-5 relative z-10">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-amber-500/10 p-1 flex items-center justify-center shadow-xl mx-auto mb-2.5 border border-amber-500/30">
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEggOVEdiqt_meBX3MZTWLxNQtkUwvRk2eJpKGnWXl6-HBUvCJEzwsn99bo2t1LYwJJEAvdhmw311dcNCO3BtNpDfZXEeeIA71Wp6ma5Exfo8R0cBS78Ex3oU0OH-yTG4kqeyYQXap7vD4HqRVevEQuLoF3ZmpAsSLae54ZpUaCaEusoNmmbIYLs0tECUqM/s320/310820414_118949974297968_1352755040497620274_n.jpg" alt="Logo" class="w-full h-full object-cover rounded-xl">
+                </div>
+                <h2 class="text-sm sm:text-base font-bold text-amber-400 tracking-wide gold-glow">OTORISASI KAS MPK</h2>
+                <p class="text-[10px] sm:text-[11px] text-slate-400 mt-0.5 font-mono">SMAN 14 SURABAYA</p>
             </div>
-            <form onsubmit="handleLoginSubmit(event)" class="space-y-3">
+            <form onsubmit="handleLoginSubmit(event)" class="space-y-3.5 relative z-10">
                 <div>
-                    <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">Pilih Peran</label>
-                    <select id="login-role" onchange="onRoleSelectChange()" class="w-full px-3 py-2 rounded-xl mpk-input text-xs font-medium">
-                        <option value="PUBLIC">Tamu (Read-Only)</option>
-                        <option value="BPH">BPH</option>
-                        <option value="BENDAHARA">Bendahara</option>
-                        <option value="PEMBINA">Pembina</option>
-                        <option value="ADMINISTRATOR">Administrator</option>
+                    <label class="block text-[10px] sm:text-[11px] font-semibold text-slate-300 mb-1 uppercase tracking-wider">Pilih Peran Pengguna</label>
+                    <select id="login-role" onchange="onRoleSelectChange()" class="w-full px-3.5 py-2.5 sm:py-3 rounded-xl mpk-input text-xs font-medium">
+                        <option value="PUBLIC">Tamu (Read-Only Viewer)</option>
+                        <option value="BPH">BPH (Manajemen Sesuai Sandi BPH)</option>
+                        <option value="BENDAHARA">BENDAHARA (Kelola Kolom, Setoran & Pengeluaran)</option>
+                        <option value="PEMBINA">PEMBINA (Pengawas, Kritik & Ekspor)</option>
+                        <option value="ADMINISTRATOR">Administrator (Akses Penuh)</option>
                     </select>
                 </div>
                 <div id="password-group" class="hidden">
-                    <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">Sandi Otoritas</label>
-                    <input type="password" id="login-password" placeholder="Kata sandi..." class="w-full px-3 py-2 rounded-xl mpk-input text-xs font-mono">
+                    <label class="block text-[10px] sm:text-[11px] font-semibold text-slate-300 mb-1 uppercase tracking-wider">Kunci Sandi Otoritas</label>
+                    <input type="password" id="login-password" placeholder="Masukkan kata sandi..." class="w-full px-3.5 py-2.5 sm:py-3 rounded-xl mpk-input text-xs font-mono">
                 </div>
-                <button type="submit" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition-all">Masuk Sesi</button>
+                <div class="pt-1">
+                    <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-slate-950 text-xs font-bold shadow-lg shadow-amber-600/20 transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-lock-open text-xs"></i>
+                        <span>Masuk Sesi Sistem</span>
+                    </button>
+                </div>
             </form>
         </div>
     </div>
 
-    <!-- PAYMENT MODAL -->
+    <!-- MODAL POPUP: CATAT KAS / CICILAN REALTIME -->
     <div id="payment-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden px-4">
-        <div class="mpk-card p-5 rounded-2xl max-w-md w-full border border-amber-500/30 space-y-3">
-            <div class="flex items-center justify-between pb-2 border-b border-white/10">
+        <div class="mpk-card p-5 sm:p-6 rounded-2xl max-w-md w-full border border-amber-500/30 shadow-2xl space-y-3.5">
+            <div class="flex items-center justify-between pb-3 border-b border-white/10">
                 <div>
-                    <h3 id="pay-col-title" class="text-xs font-bold text-amber-400 uppercase">Setoran Kas</h3>
-                    <p id="pay-student-subtitle" class="text-[10px] text-slate-400">Nama Anggota</p>
+                    <h3 id="pay-col-title" class="text-xs sm:text-sm font-bold text-amber-400 uppercase tracking-wider">Setoran Kas</h3>
+                    <p id="pay-student-subtitle" class="text-[11px] text-slate-400 mt-0.5">Nama Anggota</p>
                 </div>
                 <button onclick="closeModal('payment-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
+            <div class="grid grid-cols-2 gap-2.5 bg-white/5 p-3 rounded-xl border border-white/5">
+                <div>
+                    <span class="text-[9px] sm:text-[10px] text-slate-400 block uppercase font-semibold">Total Terbayar</span>
+                    <span id="pay-terbayar" class="text-xs sm:text-sm font-bold font-mono text-emerald-400">Rp 0</span>
+                </div>
+                <div>
+                    <span class="text-[9px] sm:text-[10px] text-slate-400 block uppercase font-semibold">Sisa Tagihan</span>
+                    <span id="pay-sisa" class="text-xs sm:text-sm font-bold font-mono text-rose-400">Rp 0</span>
+                </div>
+            </div>
             <form onsubmit="handlePaymentSubmit(event)" class="space-y-3">
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <div>
-                        <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">Jumlah (Rp)</label>
-                        <input type="number" id="pay-amount" min="1" required class="w-full px-3 py-2 rounded-xl mpk-input text-xs font-mono">
+                        <label class="block text-[10px] sm:text-[11px] font-semibold text-slate-300 mb-1 uppercase">Jumlah Setoran (Rp)</label>
+                        <input type="number" id="pay-amount" min="1" required placeholder="Contoh: 15000" class="w-full px-3 py-2 rounded-xl mpk-input text-xs font-mono">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">Tanggal</label>
+                        <label class="block text-[10px] sm:text-[11px] font-semibold text-slate-300 mb-1 uppercase">Tanggal</label>
                         <input type="date" id="pay-date" required class="w-full px-3 py-2 rounded-xl mpk-input text-xs font-mono">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">Catatan</label>
-                    <input type="text" id="pay-note" placeholder="Opsional..." class="w-full px-3 py-2 rounded-xl mpk-input text-xs">
+                    <label class="block text-[10px] sm:text-[11px] font-semibold text-slate-300 mb-1 uppercase">Catatan Setoran (Opsional)</label>
+                    <input type="text" id="pay-note" placeholder="Mis: Dititipkan bendahara kelas..." class="w-full px-3 py-2 rounded-xl mpk-input text-xs">
                 </div>
-                <button type="submit" class="w-full py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs">Simpan Setoran</button>
+                <div class="pt-1">
+                    <button type="submit" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-check-double"></i>
+                        <span>Simpan Setoran Real-Time</span>
+                    </button>
+                </div>
             </form>
-            <div id="pay-history-list" class="space-y-1 max-h-28 overflow-y-auto pr-1 text-xs border-t border-white/10 pt-2"></div>
+            <div class="pt-2 border-t border-white/10 space-y-1.5">
+                <span class="text-[10px] sm:text-[11px] font-bold text-slate-300 uppercase tracking-wider block">Riwayat Cicilan Setoran</span>
+                <div id="pay-history-list" class="space-y-1 max-h-32 overflow-y-auto pr-1 text-xs">
+                    <div class="text-slate-400 text-center py-3">Belum ada riwayat cicilan.</div>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- HEADER UTAMA -->
-    <header class="sticky top-0 z-40 mpk-card border-b border-amber-500/20 mb-5">
-        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
-            <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 rounded-xl bg-amber-500/10 p-1 flex items-center justify-center border border-amber-500/30 overflow-hidden">
+    <header class="sticky top-0 z-40 mpk-card border-b border-amber-500/20 mb-6">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between gap-2">
+            <div class="flex items-center space-x-2.5 sm:space-x-3.5 overflow-hidden">
+                <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-amber-500/10 p-1 flex items-center justify-center shadow-md border border-amber-500/30 flex-shrink-0 overflow-hidden">
                     <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEggOVEdiqt_meBX3MZTWLxNQtkUwvRk2eJpKGnWXl6-HBUvCJEzwsn99bo2t1LYwJJEAvdhmw311dcNCO3BtNpDfZXEeeIA71Wp6ma5Exfo8R0cBS78Ex3oU0OH-yTG4kqeyYQXap7vD4HqRVevEQuLoF3ZmpAsSLae54ZpUaCaEusoNmmbIYLs0tECUqM/s320/310820414_118949974297968_1352755040497620274_n.jpg" alt="Logo" class="w-full h-full object-cover rounded-lg">
                 </div>
-                <div>
-                    <h1 class="text-xs sm:text-sm font-bold text-amber-400 tracking-wide gold-glow">KAS MPK 2026/2027</h1>
-                    <p class="text-[10px] text-slate-400 flex items-center gap-2 mt-0.5">
-                        <span id="current-role-badge" class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono text-[9px]">Tamu</span>
-                        <span id="db-status" class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-[9px]">Offline</span>
+                <div class="min-w-0">
+                    <h1 class="text-xs sm:text-sm font-bold text-amber-400 tracking-wide truncate flex items-center gap-1.5 gold-glow">
+                        KAS MPK 2026/2027
+                        <span class="hidden md:inline text-[9px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono font-semibold uppercase">v8.5</span>
+                    </h1>
+                    <p class="text-[10px] sm:text-[11px] text-slate-400 flex items-center gap-1.5 sm:gap-2 mt-0.5">
+                        <span id="current-role-badge" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono text-[9px]">Tamu (Read-Only)</span>
+                        <span id="db-status" class="px-1.5 sm:px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-[9px]">Memuat...</span>
                     </p>
                 </div>
             </div>
-            <div class="flex items-center space-x-2">
-                <button id="btn-admin-access" onclick="openAdminAccessModal()" class="px-2.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-semibold hidden" title="Akses User"><i class="fa-solid fa-users-gear"></i></button>
-                <button id="btn-export-excel" onclick="exportExcel()" class="px-2.5 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-semibold restricted-action" title="Ekspor Excel"><i class="fa-solid fa-file-excel"></i></button>
-                <button id="btn-expense" onclick="openExpenseModal()" class="px-2.5 py-1.5 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 text-xs font-semibold restricted-action" title="Pengeluaran"><i class="fa-solid fa-receipt"></i></button>
-                <button onclick="openLoginModal()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-semibold"><i class="fa-solid fa-user-shield"></i> <span id="login-btn-text" class="hidden xs:inline">Login</span></button>
+            <div class="flex items-center space-x-1.5 sm:space-x-2.5 flex-shrink-0">
+                <button id="btn-admin-access" onclick="openAdminAccessModal()" class="px-2.5 sm:px-3 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-semibold flex items-center gap-1.5 transition-all hidden" title="Pengaturan Akses User">
+                    <i class="fa-solid fa-users-gear text-amber-400"></i>
+                    <span class="hidden lg:inline">Akses User</span>
+                </button>
+                <button id="btn-export-excel" onclick="exportExcel()" class="px-2.5 sm:px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-semibold flex items-center gap-1.5 transition-all restricted-action" title="Ekspor Excel">
+                    <i class="fa-solid fa-file-excel"></i>
+                    <span class="hidden sm:inline">Ekspor Excel</span>
+                </button>
+                <button id="btn-expense" onclick="openExpenseModal()" class="px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 text-xs font-semibold flex items-center gap-1.5 transition-all restricted-action" title="Catat Pengeluaran">
+                    <i class="fa-solid fa-receipt text-xs"></i>
+                    <span class="hidden md:inline">Pengeluaran</span>
+                </button>
+                <button onclick="openLoginModal()" class="px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md shadow-amber-500/10">
+                    <i class="fa-solid fa-user-shield text-amber-400"></i>
+                    <span id="login-btn-text" class="hidden xs:inline">Login Otoritas</span>
+                </button>
             </div>
         </div>
     </header>
 
     <!-- KONTEN UTAMA -->
-    <main class="max-w-7xl mx-auto px-4 space-y-5">
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-5 sm:space-y-6">
 
-        <!-- STATISTIK -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <div class="mpk-card p-4 rounded-2xl">
-                <span class="text-[10px] font-semibold text-slate-400 uppercase">Kas Bersih</span>
-                <h2 id="stat-balance" class="text-lg sm:text-xl font-bold font-mono text-amber-400 mt-1 gold-glow">Rp 0</h2>
+        <!-- BANNER PERINGATAN MODE TAMU -->
+        <div id="guest-warning-banner" class="mpk-card p-4 sm:p-5 rounded-2xl border border-amber-500/40 bg-gradient-to-r from-amber-950/40 via-[#10121a] to-amber-950/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xl">
+            <div class="flex items-start sm:items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0 border border-amber-500/30">
+                    <i class="fa-solid fa-circle-exclamation text-base"></i>
+                </div>
+                <div>
+                    <h4 class="text-xs sm:text-sm font-bold text-amber-300 uppercase tracking-wide">Anda Sedang Berada di Mode Tamu (Read-Only)</h4>
+                    <p class="text-[11px] sm:text-xs text-slate-300 mt-0.5 leading-relaxed">
+                        Fitur edit data utama dikunci. Sebagai <strong class="text-amber-400">Tamu</strong>, Anda bebas mengirimkan kritik & saran di panel bawah. Bagi pengurus, silakan klik <span class="text-amber-400 font-bold underline">Login Otoritas</span>.
+                    </p>
+                </div>
             </div>
-            <div class="mpk-card p-4 rounded-2xl">
-                <span class="text-[10px] font-semibold text-slate-400 uppercase">Belum Bayar</span>
-                <h2 id="stat-total-unpaid" class="text-lg sm:text-xl font-bold font-mono text-rose-400 mt-1">Rp 0</h2>
+            <button onclick="openLoginModal()" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-lg transition-all flex items-center gap-2 flex-shrink-0 mx-auto sm:mx-0">
+                <i class="fa-solid fa-user-shield"></i>
+                <span>Login Sekarang</span>
+            </button>
+        </div>
+
+        <!-- STATISTIK KEUANGAN -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+            <div class="mpk-card p-4 sm:p-5 rounded-2xl relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-amber-500/5 rounded-full blur-xl"></div>
+                <span class="text-[10px] sm:text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Kas Bersih</span>
+                <h2 id="stat-balance" class="text-xl sm:text-2xl font-bold font-mono text-amber-400 mt-1 gold-glow">Rp 0</h2>
+                <p class="text-[10px] sm:text-[11px] text-slate-400 mt-0.5">Akumulasi iuran bersih</p>
             </div>
-            <div class="mpk-card p-4 rounded-2xl">
-                <span class="text-[10px] font-semibold text-slate-400 uppercase">Pengeluaran</span>
-                <h2 id="stat-expense" class="text-lg sm:text-xl font-bold font-mono text-rose-400 mt-1">Rp 0</h2>
+            <div class="mpk-card p-4 sm:p-5 rounded-2xl relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-rose-500/5 rounded-full blur-xl"></div>
+                <span class="text-[10px] sm:text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Belum Bayar Seluruhnya</span>
+                <h2 id="stat-total-unpaid" class="text-xl sm:text-2xl font-bold font-mono text-rose-400 mt-1">Rp 0</h2>
+                <p class="text-[10px] sm:text-[11px] text-slate-400 mt-0.5">Akumulasi sisa kekurangan seluruh anggota</p>
             </div>
-            <div class="mpk-card p-4 rounded-2xl">
-                <span class="text-[10px] font-semibold text-slate-400 uppercase">Anggota</span>
-                <h2 id="stat-students" class="text-lg sm:text-xl font-bold font-mono text-white mt-1">0</h2>
+            <div class="mpk-card p-4 sm:p-5 rounded-2xl relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-rose-500/5 rounded-full blur-xl"></div>
+                <span class="text-[10px] sm:text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Pengeluaran</span>
+                <h2 id="stat-expense" class="text-xl sm:text-2xl font-bold font-mono text-rose-400 mt-1">Rp 0</h2>
+                <p class="text-[10px] sm:text-[11px] text-slate-400 mt-0.5">Belanja kegiatan & administrasi</p>
+            </div>
+            <div class="mpk-card p-4 sm:p-5 rounded-2xl relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-sky-500/5 rounded-full blur-xl"></div>
+                <span class="text-[10px] sm:text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Anggota Terdaftar</span>
+                <h2 id="stat-students" class="text-xl sm:text-2xl font-bold font-mono text-white mt-1">0</h2>
+                <p class="text-[10px] sm:text-[11px] text-slate-400 mt-0.5">Pengurus & perwakilan kelas</p>
             </div>
         </div>
 
-        <!-- TAB & TABEL KAS -->
-        <div class="mpk-card p-4 sm:p-5 rounded-2xl space-y-4">
+        <!-- NAVIGASI TAB HALAMAN / KOLOM KAS TERPISAH -->
+        <div class="mpk-card p-4 sm:p-6 rounded-2xl space-y-4">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-amber-500/20">
                 <div>
-                    <h3 class="text-xs sm:text-sm font-bold text-amber-400 uppercase tracking-wider"><i class="fa-solid fa-folder-open text-amber-500"></i> Navigasi Halaman Kas</h3>
+                    <h3 class="text-xs sm:text-sm font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-folder-open text-amber-500"></i> Navigasi Halaman Keperluan Kas
+                    </h3>
+                    <p class="text-[11px] sm:text-xs text-slate-400">Pilih tab di bawah untuk melihat rincian setoran dan sisa belum bayar per kategori keperluan.</p>
                 </div>
-                <div id="admin-actions-container" class="flex flex-wrap items-center gap-1.5 restricted-action w-full sm:w-auto">
-                    <button onclick="openAddStudentModal()" class="px-2.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 text-xs font-semibold"><i class="fa-solid fa-user-plus"></i> Anggota</button>
-                    <button onclick="openAddColumnModal()" class="px-2.5 py-1.5 rounded-xl bg-yellow-600 hover:bg-yellow-500 text-slate-950 text-xs font-semibold"><i class="fa-solid fa-plus-circle"></i> Halaman</button>
+                <div id="admin-actions-container" class="flex flex-wrap items-center gap-1.5 sm:gap-2 restricted-action w-full sm:w-auto">
+                    <button id="btn-add-student" onclick="openAddStudentModal()" class="px-3 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 text-xs font-semibold shadow-md flex items-center gap-1.5 transition-all flex-1 sm:flex-none justify-center">
+                        <i class="fa-solid fa-user-plus text-xs"></i> Tambah Anggota
+                    </button>
+                    <button id="btn-add-column" onclick="openAddColumnModal()" class="px-3 py-2 rounded-xl bg-yellow-600 hover:bg-yellow-500 text-slate-950 text-xs font-semibold shadow-md flex items-center gap-1.5 transition-all flex-1 sm:flex-none justify-center">
+                        <i class="fa-solid fa-plus-circle text-xs"></i> Buat Halaman Kas Baru
+                    </button>
+                    <button id="btn-delete-student" onclick="confirmDeleteSelectedStudents()" class="px-3 py-2 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 text-xs font-semibold flex items-center gap-1.5 transition-all flex-1 sm:flex-none justify-center">
+                        <i class="fa-solid fa-trash-can text-xs"></i> Hapus Terpilih
+                    </button>
                 </div>
             </div>
 
-            <!-- CONTAINER TAB -->
-            <div id="tab-navigation-bar" class="flex flex-wrap items-center gap-1.5 pb-1"></div>
+            <!-- CONTAINER TAB TOMBOL HALAMAN -->
+            <div id="tab-navigation-bar" class="flex flex-wrap items-center gap-2 pt-1 pb-2">
+            </div>
 
-            <div class="space-y-3">
-                <div id="active-tab-header-info" class="bg-amber-500/10 px-3 py-2.5 rounded-xl border border-amber-500/30 text-xs font-mono"></div>
+            <!-- KONTEN TAB AKTIF -->
+            <div class="space-y-3 pt-2">
+                <div id="active-tab-header-info" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 bg-amber-500/10 px-4 py-3 rounded-xl border border-amber-500/30 text-xs font-mono">
+                </div>
 
-                <!-- SEARCH & TOMBOL URUTKAN (KELAS, NAMA, JABATAN) -->
-                <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5 bg-white/5 p-2.5 rounded-xl border border-white/10">
+                <!-- SEARCHBAR, PENGURUTAN, & FILTER KATEGORI -->
+                <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-white/5 p-3 rounded-xl border border-white/10">
                     <div class="relative flex-1">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400"><i class="fa-solid fa-magnifying-glass text-xs"></i></span>
-                        <input type="text" id="search-student-input" oninput="handleSearchInput(this.value)" placeholder="Cari nama atau jabatan..." class="w-full pl-9 pr-3 py-1.5 rounded-xl mpk-input text-xs">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                        </span>
+                        <input type="text" id="search-student-input" oninput="handleSearchInput(this.value)" placeholder="Cari nama anak atau jabatan..." class="w-full pl-9 pr-3 py-2 rounded-xl mpk-input text-xs">
                     </div>
                     
-                    <!-- TOMBOL PENGURUTAN UTAMA -->
+                    <!-- TOMBOL PENGURUTAN (JABATAN, NAMA, KELAS) -->
                     <div class="flex items-center gap-1.5 flex-wrap">
-                        <button onclick="setSortMode('JABATAN')" id="sort-btn-JABATAN" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-amber-500 text-slate-950 shadow flex items-center gap-1"><i class="fa-solid fa-crown text-[10px]"></i> Jabatan</button>
-                        <button onclick="setSortMode('NAMA')" id="sort-btn-NAMA" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white/5 text-slate-300 hover:bg-white/10 flex items-center gap-1"><i class="fa-solid fa-font text-[10px]"></i> Nama</button>
-                        <button onclick="setSortMode('KELAS')" id="sort-btn-KELAS" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white/5 text-slate-300 hover:bg-white/10 flex items-center gap-1"><i class="fa-solid fa-graduation-cap text-[10px]"></i> Kelas</button>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider mr-1 hidden lg:inline"><i class="fa-solid fa-sort"></i> Urutkan:</span>
+                        <button onclick="setSortMode('JABATAN')" id="sort-btn-JABATAN" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-amber-500 text-slate-950 shadow flex items-center gap-1">
+                            <i class="fa-solid fa-crown text-[10px]"></i> Jabatan
+                        </button>
+                        <button onclick="setSortMode('NAMA')" id="sort-btn-NAMA" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white/5 text-slate-300 hover:bg-white/10 flex items-center gap-1">
+                            <i class="fa-solid fa-font text-[10px]"></i> Nama
+                        </button>
+                        <button onclick="setSortMode('KELAS')" id="sort-btn-KELAS" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white/5 text-slate-300 hover:bg-white/10 flex items-center gap-1">
+                            <i class="fa-solid fa-graduation-cap text-[10px]"></i> Kelas
+                        </button>
                     </div>
 
-                    <div id="filter-buttons-container" class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0"></div>
+                    <div id="filter-buttons-container" class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
+                    </div>
                 </div>
 
                 <div class="overflow-x-auto rounded-xl border border-amber-500/25 shadow-lg">
-                    <table class="w-full text-left border-collapse min-w-[700px]">
+                    <table class="w-full text-left border-collapse min-w-[750px]" id="matrix-table">
                         <thead>
                             <tr class="bg-amber-500/10 border-b border-amber-500/30 text-[10px] sm:text-[11px] font-bold text-amber-300 uppercase tracking-wider">
-                                <th class="p-2.5 w-10 text-center sticky-col-1"><input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll(this)" class="rounded border-slate-700 bg-slate-800 text-amber-500 cursor-pointer"></th>
-                                <th class="p-2.5 w-10 text-center sticky-col-2">No</th>
-                                <th class="p-2.5 min-w-[150px] sticky-col-3">Nama Lengkap</th>
-                                <th class="p-2.5 min-w-[70px]">Kelas</th>
-                                <th class="p-2.5 min-w-[120px]">Jabatan</th>
-                                <th id="tab-column-header-title" class="p-2.5 min-w-[160px] text-center">Setoran</th>
-                                <th class="p-2.5 w-12 text-center">Aksi</th>
+                                <th class="p-3 w-12 text-center sticky-col-1"><input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll(this)" class="rounded border-slate-700 bg-slate-800 text-amber-500 cursor-pointer"></th>
+                                <th class="p-3 w-12 text-center sticky-col-2">No</th>
+                                <th class="p-3 min-w-[160px] sticky-col-3">Nama Lengkap</th>
+                                <th class="p-3 min-w-[75px]">Kelas</th>
+                                <th class="p-3 min-w-[130px]">Jabatan MPK</th>
+                                <th id="tab-column-header-title" class="p-3 min-w-[180px] text-center">Setoran & Belum Bayar</th>
+                                <th class="p-3 w-16 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="matrix-body" class="divide-y divide-white/5 text-xs text-slate-300">
-                            <tr><td colspan="7" class="text-center py-8 text-slate-400">Memuat data...</td></tr>
+                            <tr><td colspan="7" class="text-center py-10 text-slate-400">Belum ada halaman kas yang dipilih.</td></tr>
                         </tbody>
-                        <tfoot id="matrix-footer"></tfoot>
+                        <tfoot id="matrix-footer">
+                        </tfoot>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- KRITIK & SARAN -->
-        <div class="mpk-card p-4 sm:p-5 rounded-2xl space-y-3 border border-amber-500/30">
-            <h3 class="text-xs sm:text-sm font-bold text-amber-400 uppercase tracking-wider"><i class="fa-solid fa-comments text-amber-400"></i> Kritik & Saran Pembina & Tamu</h3>
-            <div id="pembina-feedback-panel" class="space-y-3"></div>
+        <!-- BAGIAN TERPISAH: KRITIK DAN SARAN PEMBINA & USER -->
+        <div class="mpk-card p-4 sm:p-6 rounded-2xl space-y-4 border border-amber-500/40">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-amber-500/20">
+                <div>
+                    <h3 class="text-xs sm:text-sm font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-comments text-amber-400"></i> Kritik dan Saran Pembina & User
+                    </h3>
+                    <p class="text-[11px] sm:text-xs text-slate-400">Catatan, masukan, kritik, dan saran dari Pembina, Tamu, serta seluruh pengurus MPK.</p>
+                </div>
+                <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/30 text-[9px] sm:text-[10px] font-mono font-semibold">Panel Aspirasi</span>
+            </div>
+            <div id="pembina-feedback-panel" class="space-y-3">
+                <div class="text-slate-400 text-center py-6 text-xs">Belum ada catatan atau masukan yang dimasukkan.</div>
+            </div>
+        </div>
+
+        <!-- RIWAYAT PENGELUARAN KAS -->
+        <div class="mpk-card p-4 sm:p-6 rounded-2xl space-y-4">
+            <h3 class="text-xs sm:text-sm font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                <i class="fa-solid fa-file-invoice-dollar text-rose-400"></i> Transparansi Pengeluaran Parlemen
+            </h3>
+            <div class="overflow-x-auto rounded-xl border border-amber-500/20">
+                <table class="w-full text-left border-collapse min-w-[500px]">
+                    <thead>
+                        <tr class="bg-amber-500/5 border-b border-amber-500/20 text-[10px] sm:text-[11px] font-bold text-amber-300 uppercase tracking-wider">
+                            <th class="p-3">Tanggal</th>
+                            <th class="p-3">Keperluan / Kegiatan</th>
+                            <th class="p-3">Penerima / Vendor</th>
+                            <th class="p-3 text-right">Nominal Keluar</th>
+                            <th class="p-3 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expense-body" class="divide-y divide-white/5 text-xs text-slate-300">
+                        <tr><td colspan="5" class="text-center py-6 text-slate-400">Belum ada pengeluaran tercatat.</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 
-    <!-- MODAL TAMBAH ANGGOTA -->
+    <!-- MODAL: TAMBAH ANGGOTA -->
     <div id="student-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden px-4">
-        <div class="mpk-card p-5 rounded-2xl max-w-md w-full border border-amber-500/30 space-y-3">
-            <div class="flex items-center justify-between">
-                <h3 class="text-xs font-bold text-amber-400 uppercase">Tambah Anggota</h3>
+        <div class="mpk-card p-5 sm:p-6 rounded-2xl max-w-lg w-full border border-amber-500/30 shadow-2xl">
+            <div class="flex items-center justify-between mb-3.5">
+                <h3 class="text-xs sm:text-sm font-bold text-amber-400 uppercase tracking-wider">Tambah Pengurus & Anggota</h3>
                 <button onclick="closeModal('student-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <form onsubmit="handleStudentBulkSubmit(event)" class="space-y-3">
-                <textarea id="bulk-names" rows="5" placeholder="Nama | Kelas | Jabatan" class="w-full px-3 py-2 rounded-xl mpk-input text-xs font-mono"></textarea>
-                <button type="submit" class="w-full py-2 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs">Simpan</button>
+            <form onsubmit="handleStudentBulkSubmit(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-[10px] sm:text-[11px] font-semibold text-slate-300 mb-1 uppercase">Format Data (Nama | Kelas | Jabatan)</label>
+                    <textarea id="bulk-names" rows="6" placeholder="Vincentius Calvin Ananda | XI-7 | Ketua MPK&#10;Citra | XI-4 | Sekretaris&#10;Namira | XI-3 | Bendahara" class="w-full px-3 py-2.5 rounded-xl mpk-input text-xs font-mono"></textarea>
+                    <p class="text-[10px] text-amber-300/80 mt-1">Gunakan tanda pipa (|) sebagai pemisah kolom Nama, Kelas, dan Jabatan.</p>
+                </div>
+                <div class="flex justify-end space-x-2 pt-1">
+                    <button type="button" onclick="closeModal('student-modal')" class="px-3.5 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-white/5">Batal</button>
+                    <button type="submit" class="px-4.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-xs shadow-lg">Simpan Anggota</button>
+                </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL TAMBAH KOLOM -->
+    <!-- MODAL: TAMBAH HALAMAN / KOLOM KAS -->
     <div id="column-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden px-4">
-        <div class="mpk-card p-5 rounded-2xl max-w-sm w-full border border-amber-500/30 space-y-3">
-            <div class="flex items-center justify-between">
-                <h3 class="text-xs font-bold text-amber-400 uppercase">Buat Halaman Kas</h3>
+        <div class="mpk-card p-5 sm:p-6 rounded-2xl max-w-md w-full border border-amber-500/30 shadow-2xl">
+            <div class="flex items-center justify-between mb-3.5">
+                <h3 class="text-xs sm:text-sm font-bold text-amber-400 uppercase tracking-wider">Buat Halaman Kas Baru</h3>
                 <button onclick="closeModal('column-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <form onsubmit="handleColumnSubmit(event)" class="space-y-3">
+            <div class="space-y-3.5">
                 <div>
-                    <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">Nama Halaman</label>
-                    <input type="text" id="col-title" required placeholder="Contoh: Kas Bulanan" class="w-full px-3 py-2 rounded-xl mpk-input text-xs">
+                    <label class="block text-[10px] sm:text-[11px] font-semibold text-slate-300 mb-1.5 uppercase">Template Cepat</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="selectTemplate('Uang Kas', 'money', 15000)" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-left text-[11px] border border-white/10 font-medium">💰 Uang Kas (Rp 15k)</button>
+                        <button type="button" onclick="selectTemplate('Study Tour', 'money', 150000)" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-left text-[11px] border border-white/10 font-medium">🚌 Study Tour (Rp 150k)</button>
+                        <button type="button" onclick="selectTemplate('Buku LKS', 'money', 75000)" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-left text-[11px] border border-white/10 font-medium">📚 Buku LKS (Rp 75k)</button>
+                        <button type="button" onclick="selectTemplate('Seragam', 'check', 0)" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-left text-[11px] border border-white/10 font-medium">👕 Seragam (Centang)</button>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">Jenis</label>
-                    <select id="col-type" class="w-full px-3 py-2 rounded-xl mpk-input text-xs">
-                        <option value="money">Uang (Nominal)</option>
-                        <option value="check">Centang Status</option>
-                        <option value="text">Teks Bebas</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">Target (Rp)</label>
-                    <input type="number" id="col-target-amount" value="15000" class="w-full px-3 py-2 rounded-xl mpk-input text-xs font-mono">
-                </div>
-                <button type="submit" class="w-full py-2 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs">Simpan Halaman</button>
-            </form>
+                <form onsubmit="handleColumnSubmit(event)" class="space-y-3 pt-2 border-t border-white/10">
+                    <div>
+                        <label class="block text-[10px] sm:text-[11px] font-semibold text-slate-300 mb-1 uppercase">Nama Halaman / Keperluan</label>
+                        <input type="text" id="col-title" required placeholder="Contoh: Kas Bulanan" class="w-full px-3 py-2.5 rounded-xl mpk-input text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] sm:text-[11px] font-semibold text-slate-300 mb-1 uppercase">Jenis Halaman</label>
+                        <select id="col-type" onchange="toggleColTypeSettings()" required class="w-full px-3 py-2.5 rounded-xl mpk-input text-xs font-medium">
+                            <option value="money">Tagihan Uang (Nominal & Cicilan)</option>
+                            <option value="check">Centang Status (Mis: Lunas/Selesai)</option>
+                            <option value="text">Catatan Teks Bebas (Mis: Keterangan)</option>
+                        </select>
+                    </div>
+                    <div id="money-settings" class="space-y-2">
+                        <div>
+                            <label class="block text-[10px] sm:text-[11px] font-semibold text-slate-300 mb-1 uppercase">Target Nominal Wajib (Rp)</label>
+                            <input type="number" id="col-target-amount" min="0" placeholder="15000" class="w-full px-3 py-2.5 rounded-xl mpk-input text-xs font-mono">
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-2 pt-1">
+                        <button type="button" onclick="closeModal('column-modal')" class="px-3.5 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-white/5">Batal</button>
+                        <button type="submit" class="px-4.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-xs shadow-lg">Simpan Halaman</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
-    <!-- MODAL PENGELUARAN -->
+    <!-- MODAL: CATAT PENGELUARAN -->
     <div id="expense-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden px-4">
-        <div class="mpk-card p-5 rounded-2xl max-w-sm w-full border border-amber-500/30 space-y-3">
-            <div class="flex items-center justify-between">
-                <h3 class="text-xs font-bold text-amber-400 uppercase">Catat Pengeluaran</h3>
+        <div class="mpk-card p-5 sm:p-6 rounded-2xl max-w-md w-full border border-amber-500/30 shadow-2xl">
+            <div class="flex items-center justify-between mb-3.5">
+                <h3 class="text-xs sm:text-sm font-bold text-amber-400 uppercase tracking-wider">Catat Pengeluaran Kas</h3>
                 <button onclick="closeModal('expense-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <form onsubmit="handleExpenseSubmit(event)" class="space-y-3">
-                <input type="date" id="exp-date" required class="w-full px-3 py-2 rounded-xl mpk-input text-xs font-mono">
-                <input type="text" id="exp-desc" required placeholder="Keperluan..." class="w-full px-3 py-2 rounded-xl mpk-input text-xs">
-                <input type="text" id="exp-recipient" required placeholder="Penerima / Vendor..." class="w-full px-3 py-2 rounded-xl mpk-input text-xs">
-                <input type="number" id="exp-amount" min="1" required placeholder="Nominal..." class="w-full px-3 py-2 rounded-xl mpk-input text-xs font-mono">
-                <button type="submit" class="w-full py-2 rounded-xl bg-rose-600 text-white font-bold text-xs">Catat Keluar</button>
+            <form onsubmit="handleExpenseSubmit(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-[10px] sm:text-[11px] font-semibold text-slate-300 mb-1 uppercase">Tanggal</label>
+                    <input type="date" id="exp-date" required class="w-full px-3 py-2.5 rounded-xl mpk-input text-xs font-mono">
+                </div>
+                <div>
+                    <label class="block text-[10px] sm:text-[11px] font-semibold text-slate-300 mb-1 uppercase">Keperluan Keluar</label>
+                    <input type="text" id="exp-desc" required placeholder="Contoh: Konsumsi Rapat" class="w-full px-3 py-2.5 rounded-xl mpk-input text-xs">
+                </div>
+                <div>
+                    <label class="block text-[10px] sm:text-[11px] font-semibold text-slate-300 mb-1 uppercase">Penerima / Vendor</label>
+                    <input type="text" id="exp-recipient" required placeholder="Contoh: Koperasi Sekolah" class="w-full px-3 py-2.5 rounded-xl mpk-input text-xs">
+                </div>
+                <div>
+                    <label class="block text-[10px] sm:text-[11px] font-semibold text-slate-300 mb-1 uppercase">Nominal Keluar (Rp)</label>
+                    <input type="number" id="exp-amount" min="1" required placeholder="50000" class="w-full px-3 py-2.5 rounded-xl mpk-input text-xs font-mono">
+                </div>
+                <div class="flex justify-end space-x-2 pt-1">
+                    <button type="button" onclick="closeModal('expense-modal')" class="px-3.5 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-white/5">Batal</button>
+                    <button type="submit" class="px-4.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-lg">Catat Pengeluaran</button>
+                </div>
             </form>
         </div>
     </div>
 
-    <!-- SCRIPT UTAMA RINGAN -->
+    <!-- SCRIPT UTAMA -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAoQSylqdz-k4Lj2I4C55vjIr1lfc_uXxk",
@@ -377,26 +739,57 @@
                 firebase.initializeApp(firebaseConfig);
                 database = firebase.database();
             }
-        } catch(e) {}
+        } catch(e) { console.error("Firebase Init Error:", e); }
 
-        let windowRole = "PUBLIC";
-        let activeSessionUser = "";
-        let activeTabColId = null;
+        let windowRole = "PUBLIC"; // Default Tamu
+        let activeSessionUser = ""; 
+        let activeTabColId = null; 
         let searchQuery = "";
-        let paymentFilter = "ALL";
-        let currentSortMode = "JABATAN";
+        let paymentFilter = "ALL"; 
+        let currentSortMode = "JABATAN"; // Default urutkan berdasarkan hierarki jabatan
 
-        let appData = {
-            students: {},
-            columns: {},
-            matrixData: {},
-            expenses: {},
-            pembinaNotes: {},
-            accessPasswords: { bphKetum: 'KETUMKA', bend1: 'AIRIN', pembina: 'PEMBINA', admin: '999' },
-            accessLevels: { bphKetum: 'FULL', bend1: 'FULL', pembina: 'PARTIAL' }
+        let appData = { 
+            students: {}, 
+            columns: {}, 
+            matrixData: {}, 
+            expenses: {}, 
+            pembinaNotes: {}, 
+            accessPasswords: { 
+                bphKetum: 'KETUMKA', 
+                bphWaketum: 'WAKETUMKA', 
+                bphSekre1: 'SEKREMKA 1', 
+                bphSekre2: 'SKREMKA 2', 
+                bend1: 'AIRIN', 
+                bend2: 'TYAS', 
+                pembina: 'PEMBINA', 
+                admin: '999' 
+            },
+            accessLevels: {
+                bphKetum: 'FULL',
+                bend1: 'FULL',
+                pembina: 'PARTIAL',
+                admin: 'FULL'
+            }
         };
 
         window.addEventListener('DOMContentLoaded', () => {
+            let progress = 0;
+            const progBar = document.getElementById('intro-progress');
+            const splash = document.getElementById('intro-splash');
+            const timer = setInterval(() => {
+                progress += 25;
+                if(progBar) progBar.style.width = progress + '%';
+                if(progress >= 100) {
+                    clearInterval(timer);
+                    setTimeout(() => { if(splash) splash.remove(); }, 800);
+                }
+            }, 100);
+
+            const expDate = document.getElementById('exp-date');
+            if(expDate) expDate.valueAsDate = new Date();
+            const payDate = document.getElementById('pay-date');
+            if(payDate) payDate.valueAsDate = new Date();
+
             if (database) {
                 database.ref('kas_mpk_2026_2027').on('value', (snapshot) => {
                     const data = snapshot.val();
@@ -406,16 +799,23 @@
                         appData.matrixData = data.matrixData || {};
                         appData.expenses = data.expenses || {};
                         appData.pembinaNotes = data.pembinaNotes || {};
-                        if(data.accessPasswords) appData.accessPasswords = Object.assign(appData.accessPasswords, data.accessPasswords);
-                        if(data.accessLevels) appData.accessLevels = Object.assign(appData.accessLevels, data.accessLevels);
+                        if(data.accessPasswords) {
+                            appData.accessPasswords = Object.assign(appData.accessPasswords, data.accessPasswords);
+                        }
+                        if(data.accessLevels) {
+                            appData.accessLevels = Object.assign(appData.accessLevels, data.accessLevels);
+                        }
                     }
+                    
                     const colKeys = Object.keys(appData.columns || {});
                     if (colKeys.length > 0 && (!activeTabColId || !appData.columns[activeTabColId])) {
                         activeTabColId = colKeys[0];
                     }
+
                     renderAll();
                     updateStatus(true, "Online");
-                }, () => {
+                }, (error) => {
+                    console.error("Firebase read failed:", error);
                     updateStatus(false, "Offline");
                     renderAll();
                 });
@@ -423,58 +823,130 @@
                 updateStatus(false, "Offline");
                 renderAll();
             }
+
             applyRolePermissions();
         });
 
-        function updateStatus(online, text) {
-            const badge = document.getElementById('db-status');
-            if (badge) {
-                badge.textContent = text;
-                badge.className = `px-1.5 py-0.5 rounded font-mono text-[9px] ${online ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}`;
-            }
+        function showLoading() {
+            document.getElementById('loading-overlay').classList.remove('hidden');
+        }
+        function hideLoading() {
+            document.getElementById('loading-overlay').classList.add('hidden');
         }
 
-        window.openLoginModal = () => document.getElementById('login-modal').classList.remove('hidden');
-        window.onRoleSelectChange = () => {
+        function showSuccessPopup(descText = "Data berhasil disimpan ke sistem.") {
+            document.getElementById('gopay-popup-desc').textContent = descText;
+            document.getElementById('success-gopay-popup').classList.remove('hidden');
+        }
+
+        window.closeGopayPopup = function() {
+            document.getElementById('success-gopay-popup').classList.add('hidden');
+        }
+
+        function updateStatus(online, text) {
+            const badge = document.getElementById('db-status');
+            if (!badge) return;
+            badge.textContent = text;
+            badge.className = `px-2 py-0.5 rounded font-mono text-[9px] ${online ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}`;
+        }
+
+        window.openLoginModal = function() {
+            document.getElementById('login-modal').classList.remove('hidden');
+        }
+        window.onRoleSelectChange = function() {
             const role = document.getElementById('login-role').value;
             const pwdGroup = document.getElementById('password-group');
             if(role === 'PUBLIC') pwdGroup.classList.add('hidden');
             else pwdGroup.classList.remove('hidden');
-        };
+        }
 
-        window.handleLoginSubmit = (e) => {
+        window.handleLoginSubmit = function(e) {
             e.preventDefault();
             const role = document.getElementById('login-role').value;
             const password = document.getElementById('login-password').value.trim();
-            const p = appData.accessPasswords;
+
+            const p = appData.accessPasswords || { bphKetum: 'KETUMKA', bphWaketum: 'WAKETUMKA', bphSekre1: 'SEKREMKA 1', bphSekre2: 'SKREMKA 2', bend1: 'AIRIN', bend2: 'TYAS', pembina: 'PEMBINA', admin: '999' };
 
             let identifiedUser = "";
+
             if (role === 'BPH') {
                 if (password === p.bphKetum) identifiedUser = 'Vincent (Ketum)';
-                else { showToast("Sandi salah!", "error"); return; }
+                else if (password === p.bphWaketum) identifiedUser = 'Oriana';
+                else if (password === p.bphSekre1) identifiedUser = 'Namira';
+                else if (password === p.bphSekre2) identifiedUser = 'AIn';
+                else { showToast("Sandi BPH salah!", "error"); return; }
             } else if (role === 'BENDAHARA') {
-                if (password === p.bend1) identifiedUser = 'Bendahara';
-                else { showToast("Sandi salah!", "error"); return; }
+                if (password === p.bend1) identifiedUser = 'Airin';
+                else if (password === p.bend2) identifiedUser = 'Tyas';
+                else { showToast("Sandi BENDAHARA salah!", "error"); return; }
             } else if (role === 'PEMBINA') {
-                if (password !== p.pembina) { showToast("Sandi salah!", "error"); return; }
+                if (password !== p.pembina) { showToast("Sandi PEMBINA salah!", "error"); return; }
                 identifiedUser = 'Pembina';
             } else if (role === 'ADMINISTRATOR') {
-                if (password !== p.admin) { showToast("Sandi salah!", "error"); return; }
+                if (password !== p.admin) { showToast("Sandi Administrator salah!", "error"); return; }
                 identifiedUser = 'Admin';
             }
 
             windowRole = role;
             activeSessionUser = password;
+
             document.getElementById('login-modal').classList.add('hidden');
-            document.getElementById('current-role-badge').textContent = role === 'PUBLIC' ? 'Tamu' : role;
-            document.getElementById('login-btn-text').textContent = role === 'PUBLIC' ? 'Login' : 'Keluar';
+            document.getElementById('current-role-badge').textContent = role === 'PUBLIC' ? 'Tamu (Read-Only)' : `${role}: ${identifiedUser}`;
+            document.getElementById('login-btn-text').textContent = role === 'PUBLIC' ? 'Login Otoritas' : `Keluar (${role})`;
 
             applyRolePermissions();
-            if (role === 'ADMINISTRATOR') document.getElementById('admin-intro-modal').classList.remove('hidden');
-            else showToast(`Berhasil masuk sebagai ${role}`);
-        };
 
-        window.closeAdminIntroModal = () => document.getElementById('admin-intro-modal').classList.add('hidden');
+            if (role === 'ADMINISTRATOR') {
+                document.getElementById('admin-intro-modal').classList.remove('hidden');
+            } else {
+                document.getElementById('login-success-desc').textContent = `Berhasil masuk sebagai ${role} (${identifiedUser})`;
+                document.getElementById('success-login-popup').classList.remove('hidden');
+            }
+        }
+
+        window.closeAdminIntroModal = function() {
+            document.getElementById('admin-intro-modal').classList.add('hidden');
+        }
+
+        window.closeLoginSuccessPopup = function() {
+            document.getElementById('success-login-popup').classList.add('hidden');
+        }
+
+        window.openAdminAccessModal = function() {
+            if (windowRole !== 'ADMINISTRATOR') {
+                showToast("Akses khusus Administrator!", "error");
+                return;
+            }
+            const p = appData.accessPasswords || {};
+            const lvl = appData.accessLevels || {};
+
+            document.getElementById('pass-bph-ketum').value = p.bphKetum || 'KETUMKA';
+            document.getElementById('pass-bend-1').value = p.bend1 || 'AIRIN';
+            document.getElementById('pass-pembina').value = p.pembina || 'PEMBINA';
+            document.getElementById('pass-admin').value = p.admin || '999';
+
+            document.getElementById('level-bph-ketum').value = lvl.bphKetum || 'FULL';
+            document.getElementById('level-bend-1').value = lvl.bend1 || 'FULL';
+            document.getElementById('level-pembina').value = lvl.pembina || 'PARTIAL';
+
+            document.getElementById('admin-access-modal').classList.remove('hidden');
+        }
+
+        window.saveAdminAccessSettings = function() {
+            if (windowRole !== 'ADMINISTRATOR') return;
+
+            appData.accessPasswords.bphKetum = document.getElementById('pass-bph-ketum').value.trim() || 'KETUMKA';
+            appData.accessPasswords.bend1 = document.getElementById('pass-bend-1').value.trim() || 'AIRIN';
+            appData.accessPasswords.pembina = document.getElementById('pass-pembina').value.trim() || 'PEMBINA';
+            appData.accessPasswords.admin = document.getElementById('pass-admin').value.trim() || '999';
+
+            appData.accessLevels.bphKetum = document.getElementById('level-bph-ketum').value;
+            appData.accessLevels.bend1 = document.getElementById('level-bend-1').value;
+            appData.accessLevels.pembina = document.getElementById('level-pembina').value;
+
+            saveDataWithPopup("Konfigurasi sandi dan tingkat akses user berhasil diperbarui!");
+            closeModal('admin-access-modal');
+        }
 
         function getCurrentRoleAccessLevel() {
             if (windowRole === 'ADMINISTRATOR') return 'FULL';
@@ -485,302 +957,840 @@
             return 'LIMITED';
         }
 
-        function applyRolePermissions() {
+        function canManageColumnsOrExpenses() {
             const lvl = getCurrentRoleAccessLevel();
-            const adminContainer = document.getElementById('admin-actions-container');
-            const btnExportExcel = document.getElementById('btn-export-excel');
-            const btnExpense = document.getElementById('btn-expense');
-            const btnAdminAccess = document.getElementById('btn-admin-access');
+            return (lvl === 'FULL');
+        }
 
-            if (windowRole === 'ADMINISTRATOR') btnAdminAccess.classList.remove('hidden');
-            else btnAdminAccess.classList.add('hidden');
+        function applyRolePermissions() {
+            const isGuest = (windowRole === 'PUBLIC');
+            const lvl = getCurrentRoleAccessLevel();
+            
+            const adminContainer = document.getElementById('admin-actions-container');
+            const btnAddStudent = document.getElementById('btn-add-student');
+            const btnAddColumn = document.getElementById('btn-add-column');
+            const btnDeleteStudent = document.getElementById('btn-delete-student');
+            const btnExpense = document.getElementById('btn-expense');
+            const btnExportExcel = document.getElementById('btn-export-excel');
+            const btnAdminAccess = document.getElementById('btn-admin-access');
+            const guestWarningBanner = document.getElementById('guest-warning-banner');
+
+            if (isGuest) {
+                if (guestWarningBanner) guestWarningBanner.style.display = 'flex';
+            } else {
+                if (guestWarningBanner) guestWarningBanner.style.display = 'none';
+            }
+
+            if (windowRole === 'ADMINISTRATOR') {
+                if (btnAdminAccess) btnAdminAccess.classList.remove('hidden');
+            } else {
+                if (btnAdminAccess) btnAdminAccess.classList.add('hidden');
+            }
 
             if (lvl === 'FULL') {
-                adminContainer.classList.remove('restricted-action');
-                btnExpense.classList.remove('restricted-action');
-                btnExportExcel.classList.remove('restricted-action');
+                if (adminContainer) adminContainer.classList.remove('restricted-action');
+                if (btnAddStudent) btnAddStudent.style.display = 'flex';
+                if (btnAddColumn) btnAddColumn.style.display = 'flex';
+                if (btnDeleteStudent) btnDeleteStudent.style.display = 'flex';
+                if (btnExpense) btnExpense.classList.remove('restricted-action');
+                if (btnExportExcel) btnExportExcel.classList.remove('restricted-action');
             } else if (lvl === 'PARTIAL') {
-                adminContainer.classList.remove('restricted-action');
-                btnExpense.classList.add('restricted-action');
-                btnExportExcel.classList.remove('restricted-action');
+                if (adminContainer) adminContainer.classList.remove('restricted-action');
+                if (btnAddStudent) btnAddStudent.style.display = 'none';
+                if (btnAddColumn) btnAddColumn.style.display = 'flex';
+                if (btnDeleteStudent) btnDeleteStudent.style.display = 'none';
+                if (btnExpense) btnExpense.classList.add('restricted-action');
+                if (btnExportExcel) btnExportExcel.classList.remove('restricted-action');
             } else {
-                adminContainer.classList.add('restricted-action');
-                btnExpense.classList.add('restricted-action');
-                btnExportExcel.classList.add('restricted-action');
+                if (adminContainer) adminContainer.classList.add('restricted-action');
+                if (btnExpense) btnExpense.classList.add('restricted-action');
+                if (btnExportExcel) btnExportExcel.classList.add('restricted-action');
             }
             renderAll();
         }
 
-        window.setSortMode = (mode) => {
+        function checkPermission(requiredLevel = 'FULL') {
+            const lvl = getCurrentRoleAccessLevel();
+            if (lvl === 'LIMITED') {
+                showToast("Akses ditolak! Silakan login dengan wewenang yang memadai.", "error");
+                return false;
+            }
+            if (requiredLevel === 'FULL' && lvl !== 'FULL') {
+                showToast("Akses dibatasi! Peran Anda memiliki level Akses Sebagian.", "error");
+                return false;
+            }
+            return true;
+        }
+
+        function saveDataSilent() {
+            if (!checkPermission('FULL')) return;
+            if (database) {
+                database.ref('kas_mpk_2026_2027').set(appData);
+            }
+            renderAll();
+        }
+
+        function saveDataWithPopup(successMessage) {
+            if (database) {
+                database.ref('kas_mpk_2026_2027').set(appData).then(() => {
+                    hideLoading();
+                    showSuccessPopup(successMessage);
+                }).catch(err => {
+                    hideLoading();
+                    showToast("Gagal menyimpan ke server.", "error");
+                });
+            } else {
+                setTimeout(() => {
+                    hideLoading();
+                    showSuccessPopup(successMessage);
+                }, 400);
+            }
+            renderAll();
+        }
+
+        function renderAll() {
+            renderTabNavigation();
+            renderFilterButtons();
+            renderActiveTabTable();
+            renderPembinaPanel();
+            renderExpenses();
+            renderStats();
+        }
+
+        window.handleSearchInput = function(val) {
+            searchQuery = val.toLowerCase().trim();
+            renderActiveTabTable();
+        }
+
+        // FUNGSI PENGATURAN MODE URUTAN (JABATAN, NAMA, KELAS)
+        window.setSortMode = function(mode) {
             currentSortMode = mode;
             ['JABATAN', 'NAMA', 'KELAS'].forEach(m => {
                 const btn = document.getElementById(`sort-btn-${m}`);
                 if (!btn) return;
-                btn.className = m === mode ? 
-                    "px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-amber-500 text-slate-950 shadow flex items-center gap-1" : 
-                    "px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white/5 text-slate-300 hover:bg-white/10 flex items-center gap-1";
+                if (m === mode) {
+                    btn.className = "px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-amber-500 text-slate-950 shadow flex items-center gap-1";
+                } else {
+                    btn.className = "px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white/5 text-slate-300 hover:bg-white/10 flex items-center gap-1";
+                }
             });
             renderActiveTabTable();
-        };
+        }
 
-        // HIERARKI JABATAN TERTINGGI KE TERENDAH
+        // HIERARKI BOBOT JABATAN SESUAI PERMINTAAN:
+        // Ketua > Wakil Ketua > Sekretaris 1 > Sekretaris 2 > Bendahara 1 > Bendahara 2 > Ketua Komisi A-E > Anggota
         function getPositionRank(posStr) {
             if (!posStr) return 99;
             const p = posStr.toLowerCase().trim();
+
             if (p.includes('ketua umum') || p === 'ketua') return 1;
             if (p.includes('wakil ketua') || p.includes('waketum')) return 2;
-            if (p.includes('sekretaris 1') || p.includes('sekretaris i')) return 3;
-            if (p.includes('sekretaris 2') || p.includes('sekretaris ii')) return 4;
-            if (p.includes('bendahara 1') || p.includes('bendahara i')) return 5;
-            if (p.includes('bendahara 2') || p.includes('bendahara ii')) return 6;
+            if (p.includes('sekretaris 1') || p.includes('sekretaris i') || p.includes('sekre 1')) return 3;
+            if (p.includes('sekretaris 2') || p.includes('sekretaris ii') || p.includes('sekre 2')) return 4;
+            if (p.includes('bendahara 1') || p.includes('bendahara i') || p.includes('bend 1')) return 5;
+            if (p.includes('bendahara 2') || p.includes('bendahara ii') || p.includes('bend 2')) return 6;
+            
+            // Ketua Komisi A - E
             if (p.includes('komisi a')) return 10;
             if (p.includes('komisi b')) return 11;
             if (p.includes('komisi c')) return 12;
             if (p.includes('komisi d')) return 13;
             if (p.includes('komisi e')) return 14;
+            if (p.includes('ketua komisi')) return 15;
+
             if (p.includes('anggota')) return 50;
-            return 90;
+            return 90; // Posisi lainnya
         }
-
-        function renderAll() {
-            requestAnimationFrame(() => {
-                renderTabNavigation();
-                renderFilterButtons();
-                renderActiveTabTable();
-                renderPembinaPanel();
-                renderStats();
-            });
-        }
-
-        window.handleSearchInput = (val) => {
-            searchQuery = val.toLowerCase().trim();
-            renderActiveTabTable();
-        };
-
-        function renderTabNavigation() {
-            const tabBar = document.getElementById('tab-navigation-bar');
-            const colEntries = Object.entries(appData.columns || {});
-            if (colEntries.length === 0) {
-                tabBar.innerHTML = `<span class="text-xs text-slate-400 italic">Belum ada halaman kas.</span>`;
-                activeTabColId = null;
-                return;
-            }
-            if (!activeTabColId || !appData.columns[activeTabColId]) activeTabColId = colEntries[0][0];
-
-            tabBar.innerHTML = colEntries.map(([colId, col]) => `
-                <button onclick="switchTab('${colId}')" class="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${colId === activeTabColId ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10'}">
-                    <i class="fa-solid ${col.type === 'money' ? 'fa-wallet' : 'fa-square-check'}"></i> ${escapeHtml(col.title)}
-                </button>
-            `).join('');
-        }
-
-        window.switchTab = (colId) => {
-            activeTabColId = colId;
-            renderAll();
-        };
 
         function renderFilterButtons() {
             const container = document.getElementById('filter-buttons-container');
             if (!container) return;
-            container.innerHTML = `
-                <button onclick="setPaymentFilter('ALL')" class="px-2.5 py-1 rounded-lg text-xs font-semibold ${paymentFilter === 'ALL' ? 'bg-amber-500 text-slate-950' : 'bg-white/5 text-slate-300'}">Semua</button>
-                <button onclick="setPaymentFilter('LUNAS')" class="px-2.5 py-1 rounded-lg text-xs font-semibold ${paymentFilter === 'LUNAS' ? 'bg-amber-500 text-slate-950' : 'bg-white/5 text-slate-300'}">Lunas</button>
-                <button onclick="setPaymentFilter('BELUM_BAYAR')" class="px-2.5 py-1 rounded-lg text-xs font-semibold ${paymentFilter === 'BELUM_BAYAR' ? 'bg-amber-500 text-slate-950' : 'bg-white/5 text-slate-300'}">Belum</button>
-            `;
+
+            const currentCol = activeTabColId && appData.columns[activeTabColId];
+            const isCheckType = currentCol && currentCol.type === 'check';
+
+            if (isCheckType) {
+                if (paymentFilter !== 'CHECK_ALL' && paymentFilter !== 'CHECK_SUDAH' && paymentFilter !== 'CHECK_BELUM') {
+                    paymentFilter = 'CHECK_ALL';
+                }
+                container.innerHTML = `
+                    <button onclick="setPaymentFilter('CHECK_ALL')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${paymentFilter === 'CHECK_ALL' ? 'bg-amber-500 text-slate-950 shadow' : 'bg-white/5 text-slate-300 hover:bg-white/10'} flex-shrink-0">Semua</button>
+                    <button onclick="setPaymentFilter('CHECK_SUDAH')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${paymentFilter === 'CHECK_SUDAH' ? 'bg-amber-500 text-slate-950 shadow' : 'bg-white/5 text-slate-300 hover:bg-white/10'} flex-shrink-0">Sudah</button>
+                    <button onclick="setPaymentFilter('CHECK_BELUM')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${paymentFilter === 'CHECK_BELUM' ? 'bg-amber-500 text-slate-950 shadow' : 'bg-white/5 text-slate-300 hover:bg-white/10'} flex-shrink-0">Belum</button>
+                `;
+            } else {
+                if (['CHECK_ALL', 'CHECK_SUDAH', 'CHECK_BELUM'].includes(paymentFilter)) {
+                    paymentFilter = 'ALL';
+                }
+                container.innerHTML = `
+                    <button onclick="setPaymentFilter('ALL')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${paymentFilter === 'ALL' ? 'bg-amber-500 text-slate-950 shadow' : 'bg-white/5 text-slate-300 hover:bg-white/10'} flex-shrink-0">Semua</button>
+                    <button onclick="setPaymentFilter('LUNAS')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${paymentFilter === 'LUNAS' ? 'bg-amber-500 text-slate-950 shadow' : 'bg-white/5 text-slate-300 hover:bg-white/10'} flex-shrink-0">Lunas</button>
+                    <button onclick="setPaymentFilter('BELUM_LUNAS')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${paymentFilter === 'BELUM_LUNAS' ? 'bg-amber-500 text-slate-950 shadow' : 'bg-white/5 text-slate-300 hover:bg-white/10'} flex-shrink-0">Belum Lunas (Cicil)</button>
+                    <button onclick="setPaymentFilter('BELUM_BAYAR')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${paymentFilter === 'BELUM_BAYAR' ? 'bg-amber-500 text-slate-950 shadow' : 'bg-white/5 text-slate-300 hover:bg-white/10'} flex-shrink-0">Belum Bayar</button>
+                `;
+            }
         }
 
-        window.setPaymentFilter = (status) => {
+        window.setPaymentFilter = function(status) {
             paymentFilter = status;
             renderFilterButtons();
             renderActiveTabTable();
-        };
+        }
+
+        function renderTabNavigation() {
+            const tabBar = document.getElementById('tab-navigation-bar');
+            const colEntries = Object.entries(appData.columns || {});
+            const lvl = getCurrentRoleAccessLevel();
+            const canManageColumns = (lvl === 'FULL' || lvl === 'PARTIAL');
+
+            if (colEntries.length === 0) {
+                tabBar.innerHTML = `<span class="text-xs text-slate-400 italic">Belum ada halaman kas yang dibuat.</span>`;
+                activeTabColId = null;
+                return;
+            }
+
+            if (!activeTabColId || !appData.columns[activeTabColId]) {
+                activeTabColId = colEntries[0][0];
+            }
+
+            tabBar.innerHTML = '';
+            colEntries.forEach(([colId, col]) => {
+                const isActive = (colId === activeTabColId);
+                const btn = document.createElement('div');
+                btn.className = `flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all border ${
+                    isActive 
+                        ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-lg shadow-amber-500/20' 
+                        : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10'
+                }`;
+                
+                const deleteColBtn = canManageColumns ? `<button onclick="confirmDeleteColumn('${colId}')" class="${isActive ? 'text-slate-950 hover:text-rose-900' : 'text-rose-400 hover:text-rose-300'} px-1" title="Hapus Halaman"><i class="fa-solid fa-xmark text-[10px]"></i></button>` : '';
+
+                btn.innerHTML = `
+                    <span onclick="switchTab('${colId}')" class="cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-solid ${col.type === 'money' ? 'fa-wallet' : col.type === 'check' ? 'fa-square-check' : 'fa-note-sticky'}"></i>
+                        ${escapeHtml(col.title)}
+                    </span>
+                    ${deleteColBtn}
+                `;
+                tabBar.appendChild(btn);
+            });
+        }
+
+        window.switchTab = function(colId) {
+            activeTabColId = colId;
+            const col = appData.columns[colId];
+            if (col && col.type === 'check') {
+                paymentFilter = 'CHECK_ALL';
+            } else {
+                paymentFilter = 'ALL';
+            }
+            renderAll();
+        }
 
         function renderActiveTabTable() {
             const tbody = document.getElementById('matrix-body');
             const tfoot = document.getElementById('matrix-footer');
             const headerTitle = document.getElementById('tab-column-header-title');
             const tabHeaderInfo = document.getElementById('active-tab-header-info');
+            
+            const lvl = getCurrentRoleAccessLevel();
+            const canManageCells = (lvl === 'FULL');
+            const canDeleteStudent = (lvl === 'FULL');
 
             if (!activeTabColId || !appData.columns[activeTabColId]) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400">Pilih halaman kas.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-slate-400">Silakan pilih halaman kas di atas.</td></tr>`;
                 tfoot.innerHTML = '';
+                if(headerTitle) headerTitle.textContent = "Setoran & Belum Bayar";
+                if(tabHeaderInfo) tabHeaderInfo.innerHTML = "<span>Pilih halaman kas terlebih dahulu.</span>";
                 return;
             }
 
             const currentCol = appData.columns[activeTabColId];
-            headerTitle.textContent = currentCol.type === 'money' ? 'Setoran & Sisa' : currentCol.title;
+            if(headerTitle) headerTitle.textContent = currentCol.type === 'money' ? 'Setoran & Sisa Belum Bayar' : currentCol.title;
 
             let studentEntries = Object.entries(appData.students || {});
-            let totalMoney = 0, totalUnpaid = 0;
+            let totalTabMoney = 0;
+            let totalTabUnpaid = 0;
 
             if (currentCol.type === 'money') {
                 studentEntries.forEach(([stId]) => {
-                    const cell = appData.matrixData[stId]?.[activeTabColId];
-                    const paid = typeof cell === 'object' ? (Number(cell.paid) || 0) : (Number(cell) || 0);
+                    const cellData = appData.matrixData[stId] && appData.matrixData[stId][activeTabColId];
+                    const paid = (cellData && typeof cellData === 'object') ? (Number(cellData.paid) || 0) : (Number(cellData) || 0);
                     const target = Number(currentCol.targetAmount) || 0;
-                    totalMoney += paid;
-                    totalUnpaid += Math.max(0, target - paid);
+                    totalTabMoney += paid;
+                    totalTabUnpaid += Math.max(0, target - paid);
                 });
-                tabHeaderInfo.innerHTML = `Target: ${formatRupiah(currentCol.targetAmount)} | Terkumpul: <span class="text-emerald-400 font-bold">${formatRupiah(totalMoney)}</span> | Kurang: <span class="text-rose-400 font-bold">${formatRupiah(totalUnpaid)}</span>`;
-            } else {
-                tabHeaderInfo.innerHTML = `Status Kelengkapan: ${escapeHtml(currentCol.title)}`;
             }
 
-            // FILTER & SORT
-            let filtered = studentEntries.filter(([stId, st]) => {
-                if (searchQuery && !st.name.toLowerCase().includes(searchQuery) && !st.position.toLowerCase().includes(searchQuery)) return false;
-                if (currentCol.type === 'money') {
-                    const cell = appData.matrixData[stId]?.[activeTabColId];
-                    const paid = typeof cell === 'object' ? (Number(cell.paid) || 0) : (Number(cell) || 0);
-                    const target = Number(currentCol.targetAmount) || 0;
-                    if (paymentFilter === 'LUNAS' && paid < target) return false;
-                    if (paymentFilter === 'BELUM_BAYAR' && paid > 0) return false;
-                }
-                return true;
-            });
+            if (currentCol.type === 'money') {
+                tabHeaderInfo.innerHTML = `
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-2">
+                        <span class="text-amber-300 font-bold"><i class="fa-solid fa-bullseye"></i> Target Wajib: ${formatRupiah(currentCol.targetAmount)}</span>
+                        <div class="flex items-center gap-4">
+                            <span class="text-emerald-400 font-bold">Terkumpul: ${formatRupiah(totalTabMoney)}</span>
+                            <span class="text-rose-400 font-bold">Belum Bayar: ${formatRupiah(totalTabUnpaid)}</span>
+                        </div>
+                    </div>
+                `;
+            } else if (currentCol.type === 'check') {
+                tabHeaderInfo.innerHTML = `<span class="text-amber-300 font-bold"><i class="fa-solid fa-list-check"></i> Status Kelayakan / Kelengkapan (${currentCol.title})</span>`;
+            } else {
+                tabHeaderInfo.innerHTML = `<span class="text-amber-300 font-bold"><i class="fa-solid fa-pen-to-square"></i> Catatan Keterangan (${currentCol.title})</span>`;
+            }
 
-            filtered.sort((a, b) => {
-                if (currentSortMode === 'JABATAN') {
-                    const rA = getPositionRank(a[1].position), rB = getPositionRank(b[1].position);
-                    return rA !== rB ? rA - rB : a[1].name.localeCompare(b[1].name);
-                } else if (currentSortMode === 'NAMA') {
-                    return a[1].name.localeCompare(b[1].name);
-                } else {
-                    return (a[1].clazz || '').localeCompare(b[1].clazz || '');
-                }
-            });
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400">Tidak ada data.</td></tr>`;
+            if (studentEntries.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-slate-400">Belum ada anggota terdaftar.</td></tr>`;
                 tfoot.innerHTML = '';
                 return;
             }
 
-            tbody.innerHTML = filtered.map(([stId, st], idx) => {
-                const cell = appData.matrixData[stId]?.[activeTabColId];
-                const paid = typeof cell === 'object' ? (Number(cell.paid) || 0) : (Number(cell) || 0);
-                const target = Number(currentCol.targetAmount) || 0;
-                const sisa = Math.max(0, target - paid);
+            // FILTER DATA
+            let filteredEntries = studentEntries.filter(([stId, st]) => {
+                const matchesSearch = !searchQuery || 
+                    st.name.toLowerCase().includes(searchQuery) || 
+                    (st.clazz && st.clazz.toLowerCase().includes(searchQuery)) ||
+                    (st.position && st.position.toLowerCase().includes(searchQuery));
 
-                return `
-                    <tr class="hover:bg-white/5 transition-colors">
-                        <td class="p-2.5 text-center sticky-col-1"><input type="checkbox" class="student-checkbox rounded border-slate-700 bg-slate-800 text-amber-500" value="${stId}"></td>
-                        <td class="p-2.5 text-center font-mono text-slate-400 sticky-col-2">${idx + 1}</td>
-                        <td class="p-2.5 font-semibold text-white sticky-col-3">${escapeHtml(st.name)}</td>
-                        <td class="p-2.5 font-mono text-slate-300">${escapeHtml(st.clazz || 'XI-7')}</td>
-                        <td class="p-2.5 font-medium text-amber-300/90">${escapeHtml(st.position || 'Anggota')}</td>
-                        <td class="p-2.5 text-center">
-                            ${currentCol.type === 'money' ? `
-                                <div class="flex flex-col items-center gap-1">
-                                    <span class="font-mono font-bold text-xs ${paid >= target ? 'text-emerald-400' : 'text-amber-400'}">${formatRupiah(paid)}</span>
-                                    <button onclick="openPaymentModal('${stId}', '${activeTabColId}')" class="px-2 py-0.5 rounded bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-[10px] font-semibold border border-amber-500/30">+ Bayar</button>
+                if (!matchesSearch) return false;
+
+                const cellData = appData.matrixData[stId] && appData.matrixData[stId][activeTabColId];
+
+                if (currentCol.type === 'money') {
+                    const paid = (cellData && typeof cellData === 'object') ? (Number(cellData.paid) || 0) : (Number(cellData) || 0);
+                    const target = Number(currentCol.targetAmount) || 0;
+
+                    if (paymentFilter === 'LUNAS') {
+                        if (target > 0 && paid < target) return false;
+                    } else if (paymentFilter === 'BELUM_LUNAS') {
+                        if (target <= 0 || paid <= 0 || paid >= target) return false;
+                    } else if (paymentFilter === 'BELUM_BAYAR') {
+                        if (paid > 0) return false;
+                    }
+                } else if (currentCol.type === 'check') {
+                    const checked = (cellData && typeof cellData === 'object') ? cellData.checked : Boolean(cellData);
+                    if (paymentFilter === 'CHECK_SUDAH') {
+                        if (!checked) return false;
+                    } else if (paymentFilter === 'CHECK_BELUM') {
+                        if (checked) return false;
+                    }
+                }
+                return true;
+            });
+
+            // PENGURUTAN (SORTING) SESUAI TOMBOL PILIHAN
+            filteredEntries.sort((a, b) => {
+                const stA = a[1];
+                const stB = b[1];
+
+                if (currentSortMode === 'JABATAN') {
+                    const rankA = getPositionRank(stA.position);
+                    const rankB = getPositionRank(stB.position);
+                    if (rankA !== rankB) return rankA - rankB;
+                    return stA.name.localeCompare(stB.name);
+                } else if (currentSortMode === 'NAMA') {
+                    return stA.name.localeCompare(stB.name);
+                } else if (currentSortMode === 'KELAS') {
+                    const classA = (stA.clazz || '').localeCompare(stB.clazz || '');
+                    if (classA !== 0) return classA;
+                    return stA.name.localeCompare(stB.name);
+                }
+                return 0;
+            });
+
+            if (filteredEntries.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-slate-400">Tidak ada data anggota yang sesuai.</td></tr>`;
+                tfoot.innerHTML = '';
+                return;
+            }
+
+            tbody.innerHTML = '';
+
+            filteredEntries.forEach(([stId, st], index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-white/5 transition-all";
+                
+                const deleteStudentBtn = canDeleteStudent ? `<button onclick="confirmDeleteStudent('${stId}')" class="w-7 h-7 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto transition-all" title="Hapus Anggota"><i class="fa-solid fa-trash text-[10px]"></i></button>` : '<span class="text-[10px] text-slate-500">-</span>';
+
+                let rowHTML = `
+                    <td class="p-3 text-center sticky-col-1"><input type="checkbox" class="student-checkbox rounded border-slate-700 bg-slate-800 text-amber-500 cursor-pointer" value="${stId}" ${lvl === 'LIMITED' ? 'disabled' : ''}></td>
+                    <td class="p-3 text-center font-mono text-slate-400 sticky-col-2">${index + 1}</td>
+                    <td class="p-3 font-semibold text-white sticky-col-3">
+                        <div>${escapeHtml(st.name)}</div>
+                    </td>
+                    <td class="p-3 font-mono text-slate-300">
+                        <div>${escapeHtml(st.clazz || 'XI-7')}</div>
+                    </td>
+                    <td class="p-3 font-medium text-amber-300/90">
+                        <div>${escapeHtml(st.position || 'Anggota')}</div>
+                    </td>
+                `;
+
+                const cellData = appData.matrixData[stId] && appData.matrixData[stId][activeTabColId];
+
+                if (currentCol.type === 'money') {
+                    const paid = (cellData && typeof cellData === 'object') ? (Number(cellData.paid) || 0) : (Number(cellData) || 0);
+                    const target = Number(currentCol.targetAmount) || 0;
+                    const sisa = Math.max(0, target - paid);
+                    const isLunas = paid >= target && target > 0;
+
+                    const payBtn = canManageCells ? `<button onclick="openPaymentModal('${stId}', '${activeTabColId}')" class="px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-[10px] font-semibold border border-amber-500/35 transition-all">+ Catat Bayar</button>` : '';
+
+                    rowHTML += `
+                        <td class="p-3 text-center">
+                            <div class="flex flex-col items-center gap-1.5">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono font-bold text-xs ${isLunas ? 'text-emerald-400' : 'text-amber-400'}">Bayar: ${formatRupiah(paid)}</span>
                                 </div>
-                            ` : `<input type="text" value="${escapeHtml(cell || '')}" onchange="updateTextCell('${stId}', '${activeTabColId}', this.value)" class="w-28 px-2 py-1 rounded mpk-input text-xs text-center">`}
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono text-[11px] font-bold ${sisa > 0 ? 'text-rose-400' : 'text-emerald-400'}">Belum Bayar: ${formatRupiah(sisa)}</span>
+                                </div>
+                                ${payBtn}
+                            </div>
                         </td>
-                        <td class="p-2.5 text-center"><button onclick="confirmDeleteStudent('${stId}')" class="text-rose-400 hover:text-rose-300"><i class="fa-solid fa-trash text-[11px]"></i></button></td>
+                    `;
+                } else if (currentCol.type === 'check') {
+                    const checked = (cellData && typeof cellData === 'object') ? cellData.checked : Boolean(cellData);
+                    rowHTML += `
+                        <td class="p-3 text-center">
+                            <input type="checkbox" ${checked ? 'checked' : ''} onchange="updateCheckCell('${stId}', '${activeTabColId}', this.checked)" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-amber-500 cursor-pointer" ${!canManageCells ? 'disabled' : ''}>
+                        </td>
+                    `;
+                } else {
+                    const textVal = (cellData && typeof cellData === 'object') ? (cellData.text || '') : (cellData || '');
+                    rowHTML += `
+                        <td class="p-3 text-center">
+                            <input type="text" value="${escapeHtml(textVal)}" placeholder="Isi keterangan..." onchange="updateTextCell('${stId}', '${activeTabColId}', this.value)" class="w-36 px-2.5 py-1.5 rounded-lg mpk-input text-xs text-center" ${!canManageCells ? 'disabled' : ''}>
+                        </td>
+                    `;
+                }
+
+                rowHTML += `<td class="p-3 text-center">${deleteStudentBtn}</td>`;
+                tr.innerHTML = rowHTML;
+                tbody.appendChild(tr);
+            });
+
+            if (currentCol.type === 'money') {
+                tfoot.innerHTML = `
+                    <tr class="bg-amber-500/10 border-t-2 border-amber-500/30 font-bold text-amber-300 text-xs">
+                        <td colspan="5" class="p-3 text-right uppercase tracking-wider">Total Kas Terkumpul & Belum Bayar (${currentCol.title}):</td>
+                        <td class="p-3 text-center font-mono text-xs">
+                            <span class="text-emerald-400">Terkumpul: ${formatRupiah(totalTabMoney)}</span><br>
+                            <span class="text-rose-400">Belum Bayar: ${formatRupiah(totalTabUnpaid)}</span>
+                        </td>
+                        <td></td>
                     </tr>
                 `;
-            }).join('');
+            } else {
+                tfoot.innerHTML = '';
+            }
         }
 
-        let curPayStId = null, curPayColId = null;
-        window.openPaymentModal = (stId, colId) => {
-            curPayStId = stId; curPayColId = colId;
-            const st = appData.students[stId];
-            document.getElementById('pay-student-subtitle').textContent = `${st.name} (${st.position})`;
-            document.getElementById('payment-modal').classList.remove('hidden');
-        };
+        let currentPayStudentId = null;
+        let currentPayColId = null;
 
-        window.handlePaymentSubmit = (e) => {
+        window.openPaymentModal = function(studentId, colId) {
+            if (!canManageColumnsOrExpenses()) {
+                showToast("Akses ditolak!", "error");
+                return;
+            }
+            currentPayStudentId = studentId;
+            currentPayColId = colId;
+            const st = appData.students[studentId];
+            const col = appData.columns[colId];
+            if (!st || !col) return;
+
+            document.getElementById('pay-col-title').textContent = col.title;
+            document.getElementById('pay-student-subtitle').textContent = `${st.name} (${st.clazz || 'XI-7'}) - ${st.position || 'Anggota'}`;
+
+            const cellData = (appData.matrixData[studentId] && appData.matrixData[studentId][colId]) || {};
+            const paid = typeof cellData === 'object' ? (Number(cellData.paid) || 0) : (Number(cellData) || 0);
+            const target = Number(col.targetAmount) || 0;
+            const sisa = Math.max(0, target - paid);
+
+            document.getElementById('pay-terbayar').textContent = formatRupiah(paid);
+            document.getElementById('pay-sisa').textContent = formatRupiah(sisa);
+            document.getElementById('pay-amount').value = sisa > 0 ? sisa : (target > 0 ? target : 15000);
+
+            const historyList = document.getElementById('pay-history-list');
+            const history = (typeof cellData === 'object' && cellData.history) ? cellData.history : [];
+            const canDeleteHistory = (getCurrentRoleAccessLevel() === 'FULL');
+
+            if (history.length === 0) {
+                historyList.innerHTML = `<div class="text-slate-400 text-center py-2">Belum ada riwayat cicilan.</div>`;
+            } else {
+                historyList.innerHTML = '';
+                history.forEach((h, idx) => {
+                    const div = document.createElement('div');
+                    div.className = "flex items-center justify-between bg-white/5 p-2 rounded-lg text-xs";
+                    
+                    const deleteHistoryBtn = canDeleteHistory ? `<button onclick="deletePaymentHistory('${studentId}', '${colId}', ${idx})" class="text-rose-400 hover:text-rose-300 px-1.5 py-1" title="Hapus Riwayat"><i class="fa-solid fa-trash text-[10px]"></i></button>` : '';
+
+                    div.innerHTML = `
+                        <div>
+                            <span class="font-bold text-emerald-400">${formatRupiah(h.amount)}</span>
+                            <span class="text-[10px] text-slate-400 ml-1">(${h.date})</span>
+                            ${h.note ? `<div class="text-[10px] text-slate-300">Catatan: ${escapeHtml(h.note)}</div>` : ''}
+                        </div>
+                        ${deleteHistoryBtn}
+                    `;
+                    historyList.appendChild(div);
+                });
+            }
+            document.getElementById('payment-modal').classList.remove('hidden');
+        }
+
+        window.handlePaymentSubmit = function(e) {
             e.preventDefault();
-            const amt = Number(document.getElementById('pay-amount').value) || 0;
-            if (!appData.matrixData[curPayStId]) appData.matrixData[curPayStId] = {};
-            let cell = appData.matrixData[curPayStId][curPayColId];
-            if (!cell || typeof cell !== 'object') cell = { paid: Number(cell) || 0, history: [] };
-            cell.paid += amt;
-            cell.history.push({ amount: amt, date: document.getElementById('pay-date').value });
-            appData.matrixData[curPayStId][curPayColId] = cell;
-            saveDataSilent();
+            if (!canManageColumnsOrExpenses()) return;
+            const amount = Number(document.getElementById('pay-amount').value) || 0;
+            const date = document.getElementById('pay-date').value;
+            const note = document.getElementById('pay-note').value;
+            if (amount <= 0) return;
+
+            if (!appData.matrixData[currentPayStudentId]) appData.matrixData[currentPayStudentId] = {};
+            let cellData = appData.matrixData[currentPayStudentId][currentPayColId];
+            if (!cellData || typeof cellData !== 'object') {
+                cellData = { paid: Number(cellData) || 0, history: [] };
+            }
+            cellData.paid = (Number(cellData.paid) || 0) + amount;
+            if (!cellData.history) cellData.history = [];
+            cellData.history.push({ amount, date, note });
+
+            appData.matrixData[currentPayStudentId][currentPayColId] = cellData;
+            saveDataWithPopup(`Berhasil mencatat setoran sebesar ${formatRupiah(amount)}!`);
             closeModal('payment-modal');
-        };
+        }
+
+        window.deletePaymentHistory = function(studentId, colId, historyIdx) {
+            let cellData = appData.matrixData[studentId] && appData.matrixData[studentId][colId];
+            if (cellData && typeof cellData === 'object' && cellData.history) {
+                const removed = cellData.history.splice(historyIdx, 1)[0];
+                if (removed) {
+                    cellData.paid = Math.max(0, (Number(cellData.paid) || 0) - Number(removed.amount));
+                }
+                saveDataWithPopup("Riwayat setoran berhasil dihapus.");
+                openPaymentModal(studentId, colId);
+            }
+        }
 
         function renderPembinaPanel() {
             const panel = document.getElementById('pembina-feedback-panel');
             const notes = appData.pembinaNotes || {};
+            const lvl = getCurrentRoleAccessLevel();
+            const canDeleteNote = (lvl === 'FULL' || windowRole === 'PEMBINA');
+
+            const isGuest = (windowRole === 'PUBLIC');
+            let nameInputHtml = '';
+            if (isGuest) {
+                nameInputHtml = `
+                    <div>
+                        <label class="block text-[10px] sm:text-[11px] font-semibold text-slate-300 mb-1 uppercase">Nama Pengirim (Opsional - Kosongkan jadi Anonim)</label>
+                        <input type="text" id="guest-author-name" placeholder="Contoh: Tamu SMAN 14 atau Anonim..." class="w-full px-3 py-2 rounded-xl mpk-input text-xs">
+                    </div>
+                `;
+            }
+
             panel.innerHTML = `
-                <div class="space-y-2">
-                    <textarea id="new-note" rows="2" placeholder="Tulis masukan..." class="w-full px-3 py-2 rounded-xl mpk-input text-xs"></textarea>
-                    <button onclick="submitNote()" class="px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs">Kirim Masukan</button>
-                </div>
-                <div class="space-y-2 max-h-40 overflow-y-auto">
-                    ${Object.entries(notes).map(([id, n]) => `<div class="p-2.5 rounded-xl bg-white/5 text-xs"><strong class="text-amber-400">${escapeHtml(n.author)}:</strong> ${escapeHtml(n.text)}</div>`).join('')}
+                <div class="space-y-3">
+                    <div class="p-3 sm:p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-2.5">
+                        <label class="block text-xs font-bold text-amber-300 uppercase">Kirim Masukan, Kritik, atau Saran Baru</label>
+                        ${nameInputHtml}
+                        <textarea id="new-pembina-note" rows="3" placeholder="Tuliskan masukan, evaluasi, atau saran untuk pengurus MPK..." class="w-full px-3 py-2 rounded-xl mpk-input text-xs"></textarea>
+                        <button onclick="submitPembinaNote()" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-xs shadow">Kirim Masukan</button>
+                    </div>
+                    <div class="space-y-2.5 max-h-64 overflow-y-auto pr-1">
+                        ${Object.keys(notes).length === 0 ? '<div class="text-slate-400 text-center py-6 text-xs">Belum ada catatan atau masukan yang dimasukkan.</div>' : 
+                            Object.entries(notes).map(([noteId, n]) => {
+                                const deleteNoteBtn = canDeleteNote ? `<button onclick="deletePembinaNote('${noteId}')" class="text-rose-400 hover:text-rose-300 px-2 py-1" title="Hapus Masukan"><i class="fa-solid fa-trash text-xs"></i></button>` : '';
+
+                                return `
+                                    <div class="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-start justify-between gap-3 text-xs">
+                                        <div>
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <span class="font-bold text-amber-400"><i class="fa-solid fa-user-pen"></i> ${escapeHtml(n.author || 'Anonim')}</span>
+                                                <span class="text-[10px] text-slate-400 font-mono">(${n.date})</span>
+                                            </div>
+                                            <p class="text-slate-200 whitespace-pre-line leading-relaxed">${escapeHtml(n.text)}</p>
+                                        </div>
+                                        ${deleteNoteBtn}
+                                    </div>
+                                `;
+                            }).join('')}
+                    </div>
                 </div>
             `;
         }
 
-        window.submitNote = () => {
-            const text = document.getElementById('new-note').value.trim();
-            if (!text) return;
-            const id = `note_${Date.now()}`;
+        window.submitPembinaNote = function() {
+            const text = document.getElementById('new-pembina-note').value.trim();
+            if (!text) {
+                showToast("Masukan tidak boleh kosong!", "error");
+                return;
+            }
+
+            const noteId = `note_${Date.now()}`;
             if (!appData.pembinaNotes) appData.pembinaNotes = {};
-            appData.pembinaNotes[id] = { text, author: windowRole, date: new Date().toISOString().slice(0, 10) };
+            
+            let authorLabel = "Anonim";
+            if (windowRole === 'PUBLIC') {
+                const guestInput = document.getElementById('guest-author-name');
+                const customName = guestInput ? guestInput.value.trim() : "";
+                authorLabel = customName ? `Tamu (${customName})` : "Tamu (Anonim)";
+            } else if (windowRole === 'BPH') {
+                authorLabel = `BPH (${activeSessionUser})`;
+            } else if (windowRole === 'BENDAHARA') {
+                authorLabel = `Bendahara (${activeSessionUser})`;
+            } else if (windowRole === 'PEMBINA') {
+                authorLabel = `Pembina (Pengawas)`;
+            } else if (windowRole === 'ADMINISTRATOR') {
+                authorLabel = `Administrator`;
+            }
+
+            appData.pembinaNotes[noteId] = {
+                text,
+                author: authorLabel,
+                date: new Date().toISOString().slice(0, 10)
+            };
+
+            if (database) {
+                database.ref('kas_mpk_2026_2027').set(appData).then(() => {
+                    showToast("Masukan/saran berhasil dikirim!", "success");
+                    renderAll();
+                });
+            } else {
+                renderAll();
+                showToast("Masukan/saran berhasil dikirim!", "success");
+            }
+        }
+
+        window.deletePembinaNote = function(noteId) {
+            showModalConfirm("Hapus Masukan", "Hapus kritik dan saran ini?", () => {
+                delete appData.pembinaNotes[noteId];
+                if (database) {
+                    database.ref('kas_mpk_2026_2027').set(appData);
+                }
+                renderAll();
+                showToast("Masukan berhasil dihapus.");
+            });
+        }
+
+        window.toggleSelectAll = function(master) {
+            if (!canManageColumnsOrExpenses()) { master.checked = false; return; }
+            const checkboxes = document.querySelectorAll('.student-checkbox');
+            checkboxes.forEach(cb => cb.checked = master.checked);
+        }
+
+        window.updateCheckCell = function(stId, colId, checked) {
+            if (!canManageColumnsOrExpenses()) return;
+            if (!appData.matrixData[stId]) appData.matrixData[stId] = {};
+            let cellData = appData.matrixData[stId][colId];
+            if (!cellData || typeof cellData !== 'object') cellData = {};
+            cellData.checked = checked;
+            appData.matrixData[stId][colId] = cellData;
             saveDataSilent();
-        };
+        }
+
+        window.updateTextCell = function(stId, colId, text) {
+            if (!canManageColumnsOrExpenses()) return;
+            if (!appData.matrixData[stId]) appData.matrixData[stId] = {};
+            let cellData = appData.matrixData[stId][colId];
+            if (!cellData || typeof cellData !== 'object') cellData = {};
+            cellData.text = text;
+            appData.matrixData[stId][colId] = cellData;
+            saveDataSilent();
+        }
+
+        function renderExpenses() {
+            const tbody = document.getElementById('expense-body');
+            const expEntries = Object.entries(appData.expenses || {});
+            const canDeleteExpense = canManageColumnsOrExpenses();
+
+            if (expEntries.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400">Belum ada pengeluaran tercatat.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = '';
+            expEntries.forEach(([expId, exp]) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-white/5 transition-all";
+                
+                const deleteExpenseBtn = canDeleteExpense ? `<button onclick="confirmDeleteExpense('${expId}')" class="w-7 h-7 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto transition-all" title="Hapus Pengeluaran"><i class="fa-solid fa-trash text-[10px]"></i></button>` : '<span class="text-[10px] text-slate-500">-</span>';
+
+                tr.innerHTML = `
+                    <td class="p-3 font-mono text-slate-300">${escapeHtml(exp.date)}</td>
+                    <td class="p-3 font-medium text-white">${escapeHtml(exp.desc)}</td>
+                    <td class="p-3 text-slate-300">${escapeHtml(exp.recipient)}</td>
+                    <td class="p-3 text-right font-mono font-semibold text-rose-400">- ${formatRupiah(exp.amount)}</td>
+                    <td class="p-3 text-center">${deleteExpenseBtn}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
 
         function renderStats() {
-            let totalIncome = 0, totalExpense = 0;
-            Object.entries(appData.students || {}).forEach(([stId]) => {
-                Object.entries(appData.columns || {}).forEach(([colId, col]) => {
-                    if (col.type === 'money') {
-                        const cell = appData.matrixData[stId]?.[colId];
-                        totalIncome += typeof cell === 'object' ? (Number(cell.paid) || 0) : (Number(cell) || 0);
+            let totalIncome = 0;
+            let totalUnpaidAll = 0;
+
+            const studentCount = Object.keys(appData.students || {}).length;
+            const columns = appData.columns || {};
+
+            Object.entries(appData.students || {}).forEach(([stId, st]) => {
+                Object.entries(columns).forEach(([colId, col]) => {
+                    if (col && col.type === 'money') {
+                        const cellData = appData.matrixData[stId] && appData.matrixData[stId][colId];
+                        const paid = (cellData && typeof cellData === 'object') ? (Number(cellData.paid) || 0) : (Number(cellData) || 0);
+                        const target = Number(col.targetAmount) || 0;
+                        totalIncome += paid;
+                        totalUnpaidAll += Math.max(0, target - paid);
                     }
                 });
             });
-            Object.values(appData.expenses || {}).forEach(exp => totalExpense += Number(exp.amount) || 0);
 
-            document.getElementById('stat-balance').textContent = formatRupiah(totalIncome - totalExpense);
-            document.getElementById('stat-expense').textContent = formatRupiah(totalExpense);
-            document.getElementById('stat-students').textContent = Object.keys(appData.students || {}).length;
-        }
-
-        function saveDataSilent() {
-            if (database) database.ref('kas_mpk_2026_2027').set(appData);
-            renderAll();
-        }
-
-        window.openAddStudentModal = () => document.getElementById('student-modal').classList.remove('hidden');
-        window.openAddColumnModal = () => document.getElementById('column-modal').classList.remove('hidden');
-        window.openExpenseModal = () => document.getElementById('expense-modal').classList.remove('hidden');
-        window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
-        window.closeGopayPopup = () => document.getElementById('success-gopay-popup').classList.add('hidden');
-
-        window.handleStudentBulkSubmit = (e) => {
-            e.preventDefault();
-            const text = document.getElementById('bulk-names').value.trim();
-            text.split('\n').forEach(line => {
-                const parts = line.split('|').map(p => p.trim());
-                const stId = `st_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
-                appData.students[stId] = { name: parts[0] || 'Anggota', clazz: parts[1] || 'XI-7', position: parts[2] || 'Anggota' };
+            let totalExpense = 0;
+            Object.values(appData.expenses || {}).forEach(exp => {
+                totalExpense += Number(exp.amount) || 0;
             });
-            saveDataSilent();
-            closeModal('student-modal');
-        };
 
-        window.handleColumnSubmit = (e) => {
+            const netBalance = totalIncome - totalExpense;
+
+            document.getElementById('stat-balance').textContent = formatRupiah(netBalance);
+            document.getElementById('stat-total-unpaid').textContent = formatRupiah(totalUnpaidAll);
+            document.getElementById('stat-expense').textContent = formatRupiah(totalExpense);
+            document.getElementById('stat-students').textContent = studentCount;
+        }
+
+        window.openAddStudentModal = function() {
+            if (!canManageColumnsOrExpenses()) {
+                showToast("Akses ditolak!", "error");
+                return;
+            }
+            document.getElementById('bulk-names').value = "";
+            document.getElementById('student-modal').classList.remove('hidden');
+        }
+
+        window.handleStudentBulkSubmit = function(e) {
             e.preventDefault();
+            if (!canManageColumnsOrExpenses()) return;
+            const text = document.getElementById('bulk-names').value.trim();
+            if (!text) return;
+
+            const lines = text.split('\n');
+            let added = 0;
+            lines.forEach(line => {
+                let cleanLine = line.replace(/^\d+[\.\-\)]\s*/, '').trim();
+                if (!cleanLine) return;
+
+                let parts = cleanLine.split('|').map(p => p.trim());
+                let name = parts[0] || 'Anggota';
+                let clazz = parts[1] || 'XI-7';
+                let position = parts[2] || 'Anggota';
+
+                const stId = `st_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+                appData.students[stId] = { name, clazz, position };
+                added++;
+            });
+            saveDataWithPopup(`${added} anggota berhasil ditambahkan!`);
+            closeModal('student-modal');
+        }
+
+        window.confirmDeleteStudent = function(stId) {
+            if (!canManageColumnsOrExpenses()) {
+                showToast("Akses ditolak!", "error");
+                return;
+            }
+            showModalConfirm("Hapus Anggota", "Apakah Anda yakin ingin menghapus anggota ini?", () => {
+                delete appData.students[stId];
+                delete appData.matrixData[stId];
+                saveDataWithPopup("Anggota berhasil dihapus.");
+            });
+        }
+
+        window.confirmDeleteSelectedStudents = function() {
+            if (!canManageColumnsOrExpenses()) {
+                showToast("Akses ditolak!", "error");
+                return;
+            }
+            const checked = document.querySelectorAll('.student-checkbox:checked');
+            if (checked.length === 0) {
+                showToast("Pilih minimal satu anggota.", "error");
+                return;
+            }
+            showModalConfirm("Hapus Anggota Terpilih", `Hapus ${checked.length} anggota terpilih dari daftar?`, () => {
+                checked.forEach(cb => {
+                    const stId = cb.value;
+                    delete appData.students[stId];
+                    delete appData.matrixData[stId];
+                });
+                saveDataWithPopup("Anggota terpilih berhasil dihapus.");
+            });
+        }
+
+        window.openAddColumnModal = function() {
+            const lvl = getCurrentRoleAccessLevel();
+            if (lvl === 'LIMITED') {
+                showToast("Akses ditolak!", "error");
+                return;
+            }
+            document.getElementById('col-title').value = "";
+            document.getElementById('col-target-amount').value = "15000";
+            document.getElementById('column-modal').classList.remove('hidden');
+        }
+
+        window.selectTemplate = function(title, type, amount) {
+            document.getElementById('col-title').value = title;
+            document.getElementById('col-type').value = type;
+            document.getElementById('col-target-amount').value = amount;
+            toggleColTypeSettings();
+        }
+
+        window.toggleColTypeSettings = function() {
+            const type = document.getElementById('col-type').value;
+            const moneySet = document.getElementById('money-settings');
+            if (type === 'money') moneySet.classList.remove('hidden');
+            else moneySet.classList.add('hidden');
+        }
+
+        window.handleColumnSubmit = function(e) {
+            e.preventDefault();
+            const lvl = getCurrentRoleAccessLevel();
+            if (lvl === 'LIMITED') return;
             const title = document.getElementById('col-title').value.trim();
             const type = document.getElementById('col-type').value;
             const targetAmount = Number(document.getElementById('col-target-amount').value) || 0;
             const colId = `col_${Date.now()}`;
             appData.columns[colId] = { title, type, targetAmount };
             activeTabColId = colId;
-            saveDataSilent();
+            saveDataWithPopup("Halaman kas baru berhasil dibuat / navigasi diperbarui!");
             closeModal('column-modal');
-        };
+        }
 
-        window.handleExpenseSubmit = (e) => {
+        window.confirmDeleteColumn = function(colId) {
+            const lvl = getCurrentRoleAccessLevel();
+            if (lvl === 'LIMITED') {
+                showToast("Akses ditolak!", "error");
+                return;
+            }
+            showModalConfirm("Hapus Halaman", "Hapus halaman kas ini beserta seluruh datanya?", () => {
+                delete appData.columns[colId];
+                Object.values(appData.matrixData).forEach(stCols => { delete stCols[colId]; });
+                const colKeys = Object.keys(appData.columns || {});
+                activeTabColId = colKeys.length > 0 ? colKeys[0] : null;
+                saveDataWithPopup("Halaman kas berhasil dihapus.");
+            });
+        }
+
+        window.openExpenseModal = function() {
+            if (!canManageColumnsOrExpenses()) {
+                showToast("Akses ditolak! Hanya level Akses Penuh yang berhak mencatat pengeluaran.", "error");
+                return;
+            }
+            document.getElementById('exp-date').valueAsDate = new Date();
+            document.getElementById('expense-modal').classList.remove('hidden');
+        }
+
+        window.handleExpenseSubmit = function(e) {
             e.preventDefault();
+            if (!canManageColumnsOrExpenses()) return;
             const expId = `exp_${Date.now()}`;
             appData.expenses[expId] = {
                 date: document.getElementById('exp-date').value,
@@ -788,24 +1798,136 @@
                 recipient: document.getElementById('exp-recipient').value,
                 amount: Number(document.getElementById('exp-amount').value)
             };
-            saveDataSilent();
+            saveDataWithPopup("Pengeluaran kas berhasil dicatat!");
             closeModal('expense-modal');
+        }
+
+        window.confirmDeleteExpense = function(expId) {
+            if (!canManageColumnsOrExpenses()) {
+                showToast("Akses ditolak!", "error");
+                return;
+            }
+            showModalConfirm("Hapus Pengeluaran", "Hapus riwayat pengeluaran ini?", () => {
+                delete appData.expenses[expId];
+                saveDataWithPopup("Riwayat pengeluaran berhasil dihapus.");
+            });
+        }
+
+        window.exportExcel = function() {
+            const lvl = getCurrentRoleAccessLevel();
+            if (lvl === 'LIMITED') {
+                showToast("Akses ditolak! Peran Anda berstatus Akses Terbatas.", "error");
+                return;
+            }
+            try {
+                const wb = XLSX.utils.book_new();
+                
+                let excelData = [
+                    ["KAS MPK SMAN 14 SURABAYA - LAPORAN KEUANGAN & ADMINISTRASI"],
+                    [`Periode: Tahun Ajaran 2026/2027 | Sesi: ${windowRole} | Diekspor pada: ${new Date().toLocaleDateString('id-ID')}`],
+                    []
+                ];
+
+                let headers = ["No", "Nama Lengkap", "Kelas", "Jabatan MPK"];
+                const columns = appData.columns || {};
+                
+                Object.values(columns).forEach(col => {
+                    if (col.type === 'money') {
+                        headers.push(col.title + " (Terbayar)");
+                        headers.push(col.title + " (Belum Bayar)");
+                    } else {
+                        headers.push(col.title);
+                    }
+                });
+                excelData.push(headers);
+
+                const studentEntries = Object.entries(appData.students || {});
+                studentEntries.forEach(([stId, st], idx) => {
+                    let row = [idx + 1, st.name, st.clazz || 'XI-7', st.position || 'Anggota'];
+
+                    Object.entries(columns).forEach(([colId, col]) => {
+                        const cellData = appData.matrixData[stId] && appData.matrixData[stId][colId];
+                        if (col.type === 'money') {
+                            const paid = (cellData && typeof cellData === 'object') ? (Number(cellData.paid) || 0) : (Number(cellData) || 0);
+                            const target = Number(col.targetAmount) || 0;
+                            row.push(paid);
+                            row.push(Math.max(0, target - paid));
+                        } else if (col.type === 'check') {
+                            row.push((cellData && typeof cellData === 'object') ? (cellData.checked ? 'Lunas / Ya' : 'Belum') : (cellData ? 'Lunas / Ya' : 'Belum'));
+                        } else {
+                            row.push((cellData && typeof cellData === 'object') ? (cellData.text || '-') : (cellData || '-'));
+                        }
+                    });
+                    excelData.push(row);
+                });
+
+                excelData.push([]);
+                excelData.push(["TRANSPARANSI PENGELUARAN KAS"]);
+                excelData.push(["Tanggal", "Keperluan / Kegiatan", "Penerima / Vendor", "Nominal Keluar"]);
+
+                const expenseEntries = Object.entries(appData.expenses || {});
+                if (expenseEntries.length > 0) {
+                    expenseEntries.forEach(([_, exp]) => {
+                        excelData.push([exp.date, exp.desc, exp.recipient, Number(exp.amount) || 0]);
+                    });
+                } else {
+                    excelData.push(["-", "Belum ada pengeluaran tercatat", "-", 0]);
+                }
+
+                const ws = XLSX.utils.aoa_to_sheet(excelData);
+
+                let userPassword = "MPK2026";
+                if (activeSessionUser) {
+                    userPassword = activeSessionUser;
+                }
+
+                if (!ws['!protect']) ws['!protect'] = {};
+                ws['!protect'].password = userPassword;
+
+                const colWidths = [];
+                excelData.forEach(row => {
+                    row.forEach((val, colIdx) => {
+                        const len = val ? String(val).length : 10;
+                        if (!colWidths[colIdx] || len > colWidths[colIdx]) {
+                            colWidths[colIdx] = Math.min(Math.max(len + 3, 12), 35);
+                        }
+                    });
+                });
+                ws['!cols'] = colWidths.map(w => ({ wch: w }));
+
+                XLSX.utils.book_append_sheet(wb, ws, "Rekap Kas MPK");
+                XLSX.writeFile(wb, `Laporan_Resmi_Kas_MPK_${windowRole}_${new Date().toISOString().slice(0,10)}.xlsx`);
+                showToast(`Laporan Excel berhasil diekspor!`, "success");
+            } catch(e) { 
+                console.error(e);
+                showToast("Gagal mengekspor file.", "error"); 
+            }
+        }
+
+        window.closeModal = function(id) { document.getElementById(id).classList.add('hidden'); }
+
+        let modalCallback = null;
+        function showModalConfirm(title, msg, cb) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = msg;
+            modalCallback = cb;
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+        document.getElementById('modal-cancel').onclick = () => { document.getElementById('custom-modal').classList.add('hidden'); };
+        document.getElementById('modal-confirm').onclick = () => {
+            document.getElementById('custom-modal').classList.add('hidden');
+            if(modalCallback) modalCallback();
+            modalCallback = null;
         };
 
-        window.confirmDeleteStudent = (stId) => {
-            delete appData.students[stId];
-            delete appData.matrixData[stId];
-            saveDataSilent();
-        };
-
-        function showToast(msg) {
+        function showToast(msg, type='success') {
             const container = document.getElementById('toast-container');
             if(!container) return;
             const t = document.createElement('div');
-            t.className = `mpk-card px-3 py-2 rounded-xl border border-amber-500/30 text-amber-300 bg-amber-950/40 text-xs shadow-lg`;
-            t.textContent = msg;
+            t.className = `mpk-card px-4 py-3 rounded-xl border ${type==='success'?'border-amber-500/30 text-amber-300 bg-amber-950/40':'border-rose-500/30 text-rose-300 bg-rose-950/40'} shadow-lg text-xs flex items-center space-x-3 pointer-events-auto`;
+            t.innerHTML = `<i class="fa-solid ${type==='success'?'fa-landmark text-amber-400':'fa-circle-exclamation text-rose-400'}"></i><span>${escapeHtml(msg)}</span>`;
             container.appendChild(t);
-            setTimeout(() => t.remove(), 3000);
+            setTimeout(() => t.remove(), 3500);
         }
 
         function escapeHtml(str) {
