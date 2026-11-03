@@ -127,7 +127,7 @@
         </div>
     </div>
 
-    <!-- ADMIN INTRO / VIDEO OPENING SPECIAL MODAL -->
+    <!-- ADMIN INTRO MODAL -->
     <div id="admin-intro-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-2xl hidden px-4">
         <div class="mpk-card p-6 sm:p-8 rounded-3xl max-w-xl w-full border border-amber-500/60 shadow-2xl shadow-amber-500/30 admin-intro-anim space-y-5 relative overflow-hidden">
             <div class="absolute -top-24 -right-24 w-48 h-48 bg-amber-600/20 rounded-full blur-3xl"></div>
@@ -142,16 +142,16 @@
                 <p class="font-bold text-amber-300 flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles"></i> Hak Istimewa & Fungsi Utama Admin:</p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
                     <div class="p-2.5 rounded-xl bg-black/30 border border-white/5 flex items-start gap-2">
-                        <i class="fa-solid fa-shield-user text-amber-400 mt-0.5"></i>
-                        <span><strong>Pengaturan Akses User:</strong> Atur izin peran, hak sandi, & pembatasan fitur secara real-time.</span>
+                        <i class="fa-solid fa-users-gear text-amber-400 mt-0.5"></i>
+                        <span><strong>Pengaturan Akses User:</strong> Ubah kunci sandi, atur hak akses peran secara real-time.</span>
                     </div>
                     <div class="p-2.5 rounded-xl bg-black/30 border border-white/5 flex items-start gap-2">
                         <i class="fa-solid fa-database text-amber-400 mt-0.5"></i>
-                        <span><strong>Kontrol Penuh Data:</strong> Tambah/hapus halaman kas, kelola anggota, dan verifikasi cicilan.</span>
+                        <span><strong>Kontrol Penuh Data:</strong> Tambah/hapus halaman kas & kelola daftar anggota.</span>
                     </div>
                     <div class="p-2.5 rounded-xl bg-black/30 border border-white/5 flex items-start gap-2">
                         <i class="fa-solid fa-file-excel text-amber-400 mt-0.5"></i>
-                        <span><strong>Ekspor & Keamanan:</strong> Cetak laporan Excel resmi dengan enkripsi sandi sesi aktif.</span>
+                        <span><strong>Ekspor & Keamanan:</strong> Cetak laporan Excel resmi dengan enkripsi sandi aktif.</span>
                     </div>
                     <div class="p-2.5 rounded-xl bg-black/30 border border-white/5 flex items-start gap-2">
                         <i class="fa-solid fa-comments text-amber-400 mt-0.5"></i>
@@ -183,19 +183,19 @@
             </div>
             <div class="space-y-3 text-xs">
                 <p class="text-slate-300 leading-relaxed">
-                    Sebagai <strong class="text-amber-400">Administrator</strong>, Anda dapat menyesuaikan konfigurasi sandi dan status izin masing-masing tingkat peran di bawah ini:
+                    Sebagai <strong class="text-amber-400">Administrator</strong>, Anda dapat mengubah sandi dan konfigurasi akses masing-masing tingkat peran di bawah ini:
                 </p>
                 <div class="space-y-2.5 max-h-72 overflow-y-auto pr-1">
                     <div class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
                         <div class="flex items-center justify-between">
                             <span class="font-bold text-amber-300">BPH (Badan Pengurus Harian)</span>
-                            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-mono">Sandi Khusus</span>
+                            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-mono">Sandi Individu BPH</span>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300 font-mono">
-                            <div>Ketum: <input type="text" id="pass-bph-ketum" value="KETUMKA" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
-                            <div>Waketum: <input type="text" id="pass-bph-waketum" value="WAKETUMKA" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
-                            <div>Sekre 1: <input type="text" id="pass-bph-sekre1" value="SEKREMKA 1" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
-                            <div>Sekre 2: <input type="text" id="pass-bph-sekre2" value="SKREMKA 2" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
+                            <div>Ketum (Vincent): <input type="text" id="pass-bph-ketum" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
+                            <div>Waketum (Oriana): <input type="text" id="pass-bph-waketum" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
+                            <div>Sekre 1 (Namira): <input type="text" id="pass-bph-sekre1" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
+                            <div>Sekre 2 (AIn): <input type="text" id="pass-bph-sekre2" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
                         </div>
                     </div>
                     <div class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
@@ -204,8 +204,8 @@
                             <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-mono">Kelola Setoran & Kolom</span>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300 font-mono">
-                            <div>Bendahara 1: <input type="text" id="pass-bend-1" value="AIRIN" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
-                            <div>Bendahara 2: <input type="text" id="pass-bend-2" value="TYAS" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
+                            <div>Bendahara 1 (Airin): <input type="text" id="pass-bend-1" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
+                            <div>Bendahara 2 (Tyas): <input type="text" id="pass-bend-2" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
                         </div>
                     </div>
                     <div class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
@@ -214,8 +214,8 @@
                             <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-mono">Pengawas & Full Akses</span>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300 font-mono">
-                            <div>Sandi Pembina: <input type="text" id="pass-pembina" value="PEMBINA" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
-                            <div>Sandi Admin: <input type="text" id="pass-admin" value="999" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
+                            <div>Sandi Pembina: <input type="text" id="pass-pembina" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
+                            <div>Sandi Admin: <input type="text" id="pass-admin" class="w-full px-2 py-1 rounded mpk-input text-xs mt-0.5"></div>
                         </div>
                     </div>
                 </div>
@@ -386,7 +386,7 @@
                 <div class="min-w-0">
                     <h1 class="text-xs sm:text-sm font-bold text-amber-400 tracking-wide truncate flex items-center gap-1.5 gold-glow">
                         KAS MPK 2026/2027
-                        <span class="hidden md:inline text-[9px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono font-semibold uppercase">v8.1</span>
+                        <span class="hidden md:inline text-[9px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono font-semibold uppercase">v8.2</span>
                     </h1>
                     <p class="text-[10px] sm:text-[11px] text-slate-400 flex items-center gap-1.5 sm:gap-2 mt-0.5">
                         <span id="current-role-badge" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono text-[9px]">Tamu (Read-Only)</span>
@@ -395,7 +395,7 @@
                 </div>
             </div>
             <div class="flex items-center space-x-1.5 sm:space-x-2.5 flex-shrink-0">
-                <!-- Tombol Khusus Admin: Pengaturan Akses User -->
+                <!-- Tombol Pengaturan Akses User Khusus Admin -->
                 <button id="btn-admin-access" onclick="openAdminAccessModal()" class="px-2.5 sm:px-3 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-semibold flex items-center gap-1.5 transition-all hidden" title="Pengaturan Akses User">
                     <i class="fa-solid fa-users-gear text-amber-400"></i>
                     <span class="hidden lg:inline">Akses User</span>
@@ -428,7 +428,7 @@
                 <div>
                     <h4 class="text-xs sm:text-sm font-bold text-amber-300 uppercase tracking-wide">Anda Sedang Berada di Mode Tamu (Read-Only)</h4>
                     <p class="text-[11px] sm:text-xs text-slate-300 mt-0.5 leading-relaxed">
-                        Fitur edit data utama dikunci. Sebagai <strong class="text-amber-400">Tamu</strong>, Anda bebas mengirimkan kritik & saran di panel bawah dengan menuliskan nama atau secara anonim. Bagi pengurus, silakan klik <span class="text-amber-400 font-bold underline">Login Otoritas</span>.
+                        Fitur edit data utama dikunci. Sebagai <strong class="text-amber-400">Tamu</strong>, Anda bebas mengirimkan kritik & saran di panel bawah. Bagi pengurus, silakan klik <span class="text-amber-400 font-bold underline">Login Otoritas</span>.
                     </p>
                 </div>
             </div>
@@ -490,28 +490,23 @@
 
             <!-- CONTAINER TAB TOMBOL HALAMAN -->
             <div id="tab-navigation-bar" class="flex flex-wrap items-center gap-2 pt-1 pb-2">
-                <!-- Tombol Tab Dirender Dinamis -->
+                <!-- Tab Dirender Dinamis -->
             </div>
 
-            <!-- KONTEN TAB AKTIF: SEARCHBAR & FILTER STATUS + TABEL ANGGOTA -->
+            <!-- KONTEN TAB AKTIF -->
             <div class="space-y-3 pt-2">
                 <div id="active-tab-header-info" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 bg-amber-500/10 px-4 py-3 rounded-xl border border-amber-500/30 text-xs font-mono">
-                    <!-- Info Target / Judul Tab Aktif & Total Belum Bayar Tab Ini -->
                 </div>
 
                 <!-- SEARCHBAR & FILTER KATEGORI -->
                 <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-white/5 p-3 rounded-xl border border-white/10">
-                    <!-- Search Bar Nama Anak -->
                     <div class="relative flex-1">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                             <i class="fa-solid fa-magnifying-glass text-xs"></i>
                         </span>
                         <input type="text" id="search-student-input" oninput="handleSearchInput(this.value)" placeholder="Cari nama anak atau jabatan..." class="w-full pl-9 pr-3 py-2 rounded-xl mpk-input text-xs">
                     </div>
-
-                    <!-- Filter Kategori Status Pembayaran / Centang -->
                     <div id="filter-buttons-container" class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
-                        <!-- Filter dirender dinamis berdasarkan jenis halaman (Uang / Centang) -->
                     </div>
                 </div>
 
@@ -532,7 +527,6 @@
                             <tr><td colspan="7" class="text-center py-10 text-slate-400">Belum ada halaman kas yang dipilih.</td></tr>
                         </tbody>
                         <tfoot id="matrix-footer">
-                            <!-- Footer Total per Tab -->
                         </tfoot>
                     </table>
                 </div>
@@ -698,8 +692,24 @@
         let activeSessionUser = ""; 
         let activeTabColId = null; 
         let searchQuery = "";
-        let paymentFilter = "ALL"; // ALL, LUNAS, BELUM_LUNAS, BELUM_BAYAR, CHECK_ALL, CHECK_SUDAH, CHECK_BELUM
-        let appData = { students: {}, columns: {}, matrixData: {}, expenses: {}, pembinaNotes: {}, accessPasswords: { bphKetum: 'KETUMKA', bphWaketum: 'WAKETUMKA', bphSekre1: 'SEKREMKA 1', bphSekre2: 'SKREMKA 2', bend1: 'AIRIN', bend2: 'TYAS', pembina: 'PEMBINA', admin: '999' } };
+        let paymentFilter = "ALL"; 
+        let appData = { 
+            students: {}, 
+            columns: {}, 
+            matrixData: {}, 
+            expenses: {}, 
+            pembinaNotes: {}, 
+            accessPasswords: { 
+                bphKetum: 'KETUMKA', 
+                bphWaketum: 'WAKETUMKA', 
+                bphSekre1: 'SEKREMKA 1', 
+                bphSekre2: 'SKREMKA 2', 
+                bend1: 'AIRIN', 
+                bend2: 'TYAS', 
+                pembina: 'PEMBINA', 
+                admin: '999' 
+            } 
+        };
 
         window.addEventListener('DOMContentLoaded', () => {
             let progress = 0;
@@ -728,7 +738,9 @@
                         appData.matrixData = data.matrixData || {};
                         appData.expenses = data.expenses || {};
                         appData.pembinaNotes = data.pembinaNotes || {};
-                        if(data.accessPasswords) appData.accessPasswords = data.accessPasswords;
+                        if(data.accessPasswords) {
+                            appData.accessPasswords = Object.assign(appData.accessPasswords, data.accessPasswords);
+                        }
                     }
                     
                     const colKeys = Object.keys(appData.columns || {});
@@ -857,16 +869,16 @@
         window.saveAdminAccessSettings = function() {
             if (windowRole !== 'ADMINISTRATOR') return;
             appData.accessPasswords = {
-                bphKetum: document.getElementById('pass-bph-ketum').value.trim(),
-                bphWaketum: document.getElementById('pass-bph-waketum').value.trim(),
-                bphSekre1: document.getElementById('pass-bph-sekre1').value.trim(),
-                bphSekre2: document.getElementById('pass-bph-sekre2').value.trim(),
-                bend1: document.getElementById('pass-bend-1').value.trim(),
-                bend2: document.getElementById('pass-bend-2').value.trim(),
-                pembina: document.getElementById('pass-pembina').value.trim(),
-                admin: document.getElementById('pass-admin').value.trim()
+                bphKetum: document.getElementById('pass-bph-ketum').value.trim() || 'KETUMKA',
+                bphWaketum: document.getElementById('pass-bph-waketum').value.trim() || 'WAKETUMKA',
+                bphSekre1: document.getElementById('pass-bph-sekre1').value.trim() || 'SEKREMKA 1',
+                bphSekre2: document.getElementById('pass-bph-sekre2').value.trim() || 'SKREMKA 2',
+                bend1: document.getElementById('pass-bend-1').value.trim() || 'AIRIN',
+                bend2: document.getElementById('pass-bend-2').value.trim() || 'TYAS',
+                pembina: document.getElementById('pass-pembina').value.trim() || 'PEMBINA',
+                admin: document.getElementById('pass-admin').value.trim() || '999'
             };
-            saveDataWithPopup("Konfigurasi akses & sandi user berhasil diperbarui!");
+            saveDataWithPopup("Konfigurasi sandi dan hak akses user berhasil diperbarui!");
             closeModal('admin-access-modal');
         }
 
@@ -944,8 +956,6 @@
         }
 
         function saveDataWithPopup(successMessage) {
-            if (!checkPermission()) return;
-            showLoading();
             if (database) {
                 database.ref('kas_mpk_2026_2027').set(appData).then(() => {
                     hideLoading();
@@ -989,19 +999,19 @@
                     paymentFilter = 'CHECK_ALL';
                 }
                 container.innerHTML = `
-                    <button onclick="setPaymentFilter('CHECK_ALL')" id="filter-btn-CHECK_ALL" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${paymentFilter === 'CHECK_ALL' ? 'bg-amber-500 text-slate-950 shadow' : 'bg-white/5 text-slate-300 hover:bg-white/10'} flex-shrink-0">Semua</button>
-                    <button onclick="setPaymentFilter('CHECK_SUDAH')" id="filter-btn-CHECK_SUDAH" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${paymentFilter === 'CHECK_SUDAH' ? 'bg-amber-500 text-slate-950 shadow' : 'bg-white/5 text-slate-300 hover:bg-white/10'} flex-shrink-0">Sudah</button>
-                    <button onclick="setPaymentFilter('CHECK_BELUM')" id="filter-btn-CHECK_BELUM" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${paymentFilter === 'CHECK_BELUM' ? 'bg-amber-500 text-slate-950 shadow' : 'bg-white/5 text-slate-300 hover:bg-white/10'} flex-shrink-0">Belum</button>
+                    <button onclick="setPaymentFilter('CHECK_ALL')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${paymentFilter === 'CHECK_ALL' ? 'bg-amber-500 text-slate-950 shadow' : 'bg-white/5 text-slate-300 hover:bg-white/10'} flex-shrink-0">Semua</button>
+                    <button onclick="setPaymentFilter('CHECK_SUDAH')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${paymentFilter === 'CHECK_SUDAH' ? 'bg-amber-500 text-slate-950 shadow' : 'bg-white/5 text-slate-300 hover:bg-white/10'} flex-shrink-0">Sudah</button>
+                    <button onclick="setPaymentFilter('CHECK_BELUM')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${paymentFilter === 'CHECK_BELUM' ? 'bg-amber-500 text-slate-950 shadow' : 'bg-white/5 text-slate-300 hover:bg-white/10'} flex-shrink-0">Belum</button>
                 `;
             } else {
                 if (['CHECK_ALL', 'CHECK_SUDAH', 'CHECK_BELUM'].includes(paymentFilter)) {
                     paymentFilter = 'ALL';
                 }
                 container.innerHTML = `
-                    <button onclick="setPaymentFilter('ALL')" id="filter-btn-ALL" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${paymentFilter === 'ALL' ? 'bg-amber-500 text-slate-950 shadow' : 'bg-white/5 text-slate-300 hover:bg-white/10'} flex-shrink-0">Semua</button>
-                    <button onclick="setPaymentFilter('LUNAS')" id="filter-btn-LUNAS" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${paymentFilter === 'LUNAS' ? 'bg-amber-500 text-slate-950 shadow' : 'bg-white/5 text-slate-300 hover:bg-white/10'} flex-shrink-0">Lunas</button>
-                    <button onclick="setPaymentFilter('BELUM_LUNAS')" id="filter-btn-BELUM_LUNAS" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${paymentFilter === 'BELUM_LUNAS' ? 'bg-amber-500 text-slate-950 shadow' : 'bg-white/5 text-slate-300 hover:bg-white/10'} flex-shrink-0">Belum Lunas (Cicil)</button>
-                    <button onclick="setPaymentFilter('BELUM_BAYAR')" id="filter-btn-BELUM_BAYAR" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${paymentFilter === 'BELUM_BAYAR' ? 'bg-amber-500 text-slate-950 shadow' : 'bg-white/5 text-slate-300 hover:bg-white/10'} flex-shrink-0">Belum Bayar</button>
+                    <button onclick="setPaymentFilter('ALL')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${paymentFilter === 'ALL' ? 'bg-amber-500 text-slate-950 shadow' : 'bg-white/5 text-slate-300 hover:bg-white/10'} flex-shrink-0">Semua</button>
+                    <button onclick="setPaymentFilter('LUNAS')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${paymentFilter === 'LUNAS' ? 'bg-amber-500 text-slate-950 shadow' : 'bg-white/5 text-slate-300 hover:bg-white/10'} flex-shrink-0">Lunas</button>
+                    <button onclick="setPaymentFilter('BELUM_LUNAS')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${paymentFilter === 'BELUM_LUNAS' ? 'bg-amber-500 text-slate-950 shadow' : 'bg-white/5 text-slate-300 hover:bg-white/10'} flex-shrink-0">Belum Lunas (Cicil)</button>
+                    <button onclick="setPaymentFilter('BELUM_BAYAR')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${paymentFilter === 'BELUM_BAYAR' ? 'bg-amber-500 text-slate-950 shadow' : 'bg-white/5 text-slate-300 hover:bg-white/10'} flex-shrink-0">Belum Bayar</button>
                 `;
             }
         }
@@ -1774,7 +1784,7 @@
             if(!container) return;
             const t = document.createElement('div');
             t.className = `mpk-card px-4 py-3 rounded-xl border ${type==='success'?'border-amber-500/30 text-amber-300 bg-amber-950/40':'border-rose-500/30 text-rose-300 bg-rose-950/40'} shadow-lg text-xs flex items-center space-x-3 pointer-events-auto`;
-            t.innerHTML = `<i class="fa-solid ${type==='success'?'fa-landmark text-amber-400':'fa-circle-exclamation text-rose-400'}"></i><span>${escapeHtml(msg)}</span>`;
+            t.innerHTML = `<i class="fa-solid ${type==='success'?'fa-landmark text-amber-400':'fa-circle-exclamation text-rose-400'}"><span>${escapeHtml(msg)}</span>`;
             container.appendChild(t);
             setTimeout(() => t.remove(), 3500);
         }
