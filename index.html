@@ -426,7 +426,7 @@
                 <div class="min-w-0">
                     <h1 class="text-xs sm:text-sm font-bold text-amber-400 tracking-wide truncate flex items-center gap-1.5 gold-glow">
                         KAS MPK 2026/2027
-                        <span class="hidden md:inline text-[9px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono font-semibold uppercase">v8.3</span>
+                        <span class="hidden md:inline text-[9px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono font-semibold uppercase">v8.5</span>
                     </h1>
                     <p class="text-[10px] sm:text-[11px] text-slate-400 flex items-center gap-1.5 sm:gap-2 mt-0.5">
                         <span id="current-role-badge" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono text-[9px]">Tamu (Read-Only)</span>
@@ -435,7 +435,6 @@
                 </div>
             </div>
             <div class="flex items-center space-x-1.5 sm:space-x-2.5 flex-shrink-0">
-                <!-- Tombol Pengaturan Akses & Sandi Khusus Admin -->
                 <button id="btn-admin-access" onclick="openAdminAccessModal()" class="px-2.5 sm:px-3 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-semibold flex items-center gap-1.5 transition-all hidden" title="Pengaturan Akses User">
                     <i class="fa-solid fa-users-gear text-amber-400"></i>
                     <span class="hidden lg:inline">Akses User</span>
@@ -537,7 +536,7 @@
                 <div id="active-tab-header-info" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 bg-amber-500/10 px-4 py-3 rounded-xl border border-amber-500/30 text-xs font-mono">
                 </div>
 
-                <!-- SEARCHBAR & FILTER KATEGORI -->
+                <!-- SEARCHBAR, PENGURUTAN, & FILTER KATEGORI -->
                 <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-white/5 p-3 rounded-xl border border-white/10">
                     <div class="relative flex-1">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -545,6 +544,21 @@
                         </span>
                         <input type="text" id="search-student-input" oninput="handleSearchInput(this.value)" placeholder="Cari nama anak atau jabatan..." class="w-full pl-9 pr-3 py-2 rounded-xl mpk-input text-xs">
                     </div>
+                    
+                    <!-- TOMBOL PENGURUTAN (JABATAN, NAMA, KELAS) -->
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider mr-1 hidden lg:inline"><i class="fa-solid fa-sort"></i> Urutkan:</span>
+                        <button onclick="setSortMode('JABATAN')" id="sort-btn-JABATAN" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-amber-500 text-slate-950 shadow flex items-center gap-1">
+                            <i class="fa-solid fa-crown text-[10px]"></i> Jabatan
+                        </button>
+                        <button onclick="setSortMode('NAMA')" id="sort-btn-NAMA" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white/5 text-slate-300 hover:bg-white/10 flex items-center gap-1">
+                            <i class="fa-solid fa-font text-[10px]"></i> Nama
+                        </button>
+                        <button onclick="setSortMode('KELAS')" id="sort-btn-KELAS" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white/5 text-slate-300 hover:bg-white/10 flex items-center gap-1">
+                            <i class="fa-solid fa-graduation-cap text-[10px]"></i> Kelas
+                        </button>
+                    </div>
+
                     <div id="filter-buttons-container" class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
                     </div>
                 </div>
@@ -732,6 +746,8 @@
         let activeTabColId = null; 
         let searchQuery = "";
         let paymentFilter = "ALL"; 
+        let currentSortMode = "JABATAN"; // Default urutkan berdasarkan hierarki jabatan
+
         let appData = { 
             students: {}, 
             columns: {}, 
@@ -979,15 +995,13 @@
                 if (btnExpense) btnExpense.classList.remove('restricted-action');
                 if (btnExportExcel) btnExportExcel.classList.remove('restricted-action');
             } else if (lvl === 'PARTIAL') {
-                // Akses Sebagian: Bisa Export Excel & Merubah susunan/navigasi tab halaman (tetapi tidak mengubah data keuangan utama)
                 if (adminContainer) adminContainer.classList.remove('restricted-action');
                 if (btnAddStudent) btnAddStudent.style.display = 'none';
-                if (btnAddColumn) btnAddColumn.style.display = 'flex'; // Bisa buat/atur halaman navigasi
+                if (btnAddColumn) btnAddColumn.style.display = 'flex';
                 if (btnDeleteStudent) btnDeleteStudent.style.display = 'none';
                 if (btnExpense) btnExpense.classList.add('restricted-action');
                 if (btnExportExcel) btnExportExcel.classList.remove('restricted-action');
             } else {
-                // Akses Terbatas / Limited (Read-Only)
                 if (adminContainer) adminContainer.classList.add('restricted-action');
                 if (btnExpense) btnExpense.classList.add('restricted-action');
                 if (btnExportExcel) btnExportExcel.classList.add('restricted-action');
@@ -1046,6 +1060,46 @@
         window.handleSearchInput = function(val) {
             searchQuery = val.toLowerCase().trim();
             renderActiveTabTable();
+        }
+
+        // FUNGSI PENGATURAN MODE URUTAN (JABATAN, NAMA, KELAS)
+        window.setSortMode = function(mode) {
+            currentSortMode = mode;
+            ['JABATAN', 'NAMA', 'KELAS'].forEach(m => {
+                const btn = document.getElementById(`sort-btn-${m}`);
+                if (!btn) return;
+                if (m === mode) {
+                    btn.className = "px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-amber-500 text-slate-950 shadow flex items-center gap-1";
+                } else {
+                    btn.className = "px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white/5 text-slate-300 hover:bg-white/10 flex items-center gap-1";
+                }
+            });
+            renderActiveTabTable();
+        }
+
+        // HIERARKI BOBOT JABATAN SESUAI PERMINTAAN:
+        // Ketua > Wakil Ketua > Sekretaris 1 > Sekretaris 2 > Bendahara 1 > Bendahara 2 > Ketua Komisi A-E > Anggota
+        function getPositionRank(posStr) {
+            if (!posStr) return 99;
+            const p = posStr.toLowerCase().trim();
+
+            if (p.includes('ketua umum') || p === 'ketua') return 1;
+            if (p.includes('wakil ketua') || p.includes('waketum')) return 2;
+            if (p.includes('sekretaris 1') || p.includes('sekretaris i') || p.includes('sekre 1')) return 3;
+            if (p.includes('sekretaris 2') || p.includes('sekretaris ii') || p.includes('sekre 2')) return 4;
+            if (p.includes('bendahara 1') || p.includes('bendahara i') || p.includes('bend 1')) return 5;
+            if (p.includes('bendahara 2') || p.includes('bendahara ii') || p.includes('bend 2')) return 6;
+            
+            // Ketua Komisi A - E
+            if (p.includes('komisi a')) return 10;
+            if (p.includes('komisi b')) return 11;
+            if (p.includes('komisi c')) return 12;
+            if (p.includes('komisi d')) return 13;
+            if (p.includes('komisi e')) return 14;
+            if (p.includes('ketua komisi')) return 15;
+
+            if (p.includes('anggota')) return 50;
+            return 90; // Posisi lainnya
         }
 
         function renderFilterButtons() {
@@ -1154,7 +1208,7 @@
             const currentCol = appData.columns[activeTabColId];
             if(headerTitle) headerTitle.textContent = currentCol.type === 'money' ? 'Setoran & Sisa Belum Bayar' : currentCol.title;
 
-            const studentEntries = Object.entries(appData.students || {});
+            let studentEntries = Object.entries(appData.students || {});
             let totalTabMoney = 0;
             let totalTabUnpaid = 0;
 
@@ -1190,6 +1244,7 @@
                 return;
             }
 
+            // FILTER DATA
             let filteredEntries = studentEntries.filter(([stId, st]) => {
                 const matchesSearch = !searchQuery || 
                     st.name.toLowerCase().includes(searchQuery) || 
@@ -1220,6 +1275,26 @@
                     }
                 }
                 return true;
+            });
+
+            // PENGURUTAN (SORTING) SESUAI TOMBOL PILIHAN
+            filteredEntries.sort((a, b) => {
+                const stA = a[1];
+                const stB = b[1];
+
+                if (currentSortMode === 'JABATAN') {
+                    const rankA = getPositionRank(stA.position);
+                    const rankB = getPositionRank(stB.position);
+                    if (rankA !== rankB) return rankA - rankB;
+                    return stA.name.localeCompare(stB.name);
+                } else if (currentSortMode === 'NAMA') {
+                    return stA.name.localeCompare(stB.name);
+                } else if (currentSortMode === 'KELAS') {
+                    const classA = (stA.clazz || '').localeCompare(stB.clazz || '');
+                    if (classA !== 0) return classA;
+                    return stA.name.localeCompare(stB.name);
+                }
+                return 0;
             });
 
             if (filteredEntries.length === 0) {
