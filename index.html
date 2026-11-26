@@ -26,11 +26,12 @@
             }
         }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains Mono:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <style>
         body {
@@ -157,8 +158,8 @@
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300">
                 <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-start gap-2">
-                    <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5"></i>
-                    <span>Verifikasi setoran Tunai, QRIS, & Transfer.</span>
+                    <i class="fa-solid fa-envelope-circle-check text-emerald-400 mt-0.5"></i>
+                    <span>Kirim email otomatis ke mpksmanegeri14sby@gmail.com.</span>
                 </div>
                 <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-start gap-2">
                     <i class="fa-solid fa-receipt text-amber-400 mt-0.5"></i>
@@ -179,22 +180,30 @@
         </div>
     </div>
 
-    <!-- MODAL: PENGATURAN AKSES USER & SANDI -->
+    <!-- MODAL: PENGATURAN AKSES USER, SANDI & EMAIL KONFIRMASI -->
     <div id="admin-access-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md hidden px-3">
-        <div class="mpk-card p-5 sm:p-6 rounded-2xl max-w-xl w-full border border-amber-400/40 shadow-2xl space-y-4">
+        <div class="mpk-card p-5 sm:p-6 rounded-2xl max-w-xl w-full border border-amber-400/40 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between pb-3 border-b border-white/10">
                 <div class="flex items-center space-x-2.5">
                     <div class="w-9 h-9 rounded-xl bg-amber-400/15 text-amber-400 flex items-center justify-center border border-amber-400/30">
                         <i class="fa-solid fa-users-gear text-sm"></i>
                     </div>
                     <div>
-                        <h3 class="text-xs sm:text-sm font-bold text-amber-400 uppercase tracking-wider">Pengaturan Sandi & Tingkat Akses</h3>
-                        <p class="text-[10px] text-slate-400">Atur sandi serta wewenang tiap peran</p>
+                        <h3 class="text-xs sm:text-sm font-bold text-amber-400 uppercase tracking-wider">Pengaturan Sandi, Akses & EmailJS</h3>
+                        <p class="text-[10px] text-slate-400">Target email konfirmasi: mpksmanegeri14sby@gmail.com</p>
                     </div>
                 </div>
                 <button onclick="closeModal('admin-access-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div class="space-y-2.5 max-h-72 overflow-y-auto pr-1 text-xs">
+                <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-400/25 space-y-2">
+                    <span class="font-bold text-emerald-300 block">Konfigurasi Pengiriman Email Otomatis (EmailJS)</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] font-mono">
+                        <div>Public Key: <input type="text" id="emailjs-public-key" placeholder="Opsional" class="w-full px-2 py-1.5 rounded-lg mpk-input text-xs mt-0.5"></div>
+                        <div>Service ID: <input type="text" id="emailjs-service-id" placeholder="Opsional" class="w-full px-2 py-1.5 rounded-lg mpk-input text-xs mt-0.5"></div>
+                        <div>Template ID: <input type="text" id="emailjs-template-id" placeholder="Opsional" class="w-full px-2 py-1.5 rounded-lg mpk-input text-xs mt-0.5"></div>
+                    </div>
+                </div>
                 <div class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
                     <span class="font-bold text-amber-300 block">BPH (Badan Pengurus Harian)</span>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono">
@@ -249,6 +258,52 @@
         </div>
     </div>
 
+    <!-- MODAL EMAIL KONFIRMASI & TOMBOL KONFIRMASI OTOMATIS -->
+    <div id="email-confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md hidden px-3">
+        <div class="mpk-card p-5 sm:p-6 rounded-2xl max-w-lg w-full border border-amber-400/45 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between pb-2.5 border-b border-white/10">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-300 flex items-center justify-center border border-emerald-400/35">
+                        <i class="fa-solid fa-envelope-open-text"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs sm:text-sm font-extrabold text-amber-400 uppercase">Email Notifikasi & Konfirmasi Pembayaran</h3>
+                        <p class="text-[10px] font-mono text-emerald-300">Tujuan: mpksmanegeri14sby@gmail.com</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('email-confirm-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="bg-slate-950/90 p-4 rounded-2xl border border-amber-400/30 space-y-2.5 text-xs font-mono">
+                <div class="flex justify-between gap-2"><span class="text-slate-400">Kepada:</span><span class="text-emerald-300 font-bold">mpksmanegeri14sby@gmail.com</span></div>
+                <div class="flex justify-between gap-2"><span class="text-slate-400">No. Bon:</span><span id="eml-bon" class="text-amber-300 font-bold">-</span></div>
+                <div class="flex justify-between gap-2"><span class="text-slate-400">Anggota:</span><span id="eml-name" class="text-white font-bold text-right">-</span></div>
+                <div class="flex justify-between gap-2"><span class="text-slate-400">Tagihan:</span><span id="eml-col" class="text-slate-200 text-right">-</span></div>
+                <div class="flex justify-between gap-2"><span class="text-slate-400">Metode & Ref:</span><span id="eml-method" class="text-amber-300 text-right">-</span></div>
+                <div class="flex justify-between gap-2"><span class="text-slate-400">Nominal:</span><span id="eml-amount" class="text-emerald-400 font-extrabold text-sm">-</span></div>
+                <div class="flex justify-between gap-2"><span class="text-slate-400">Status Saat Ini:</span><span id="eml-status" class="font-bold text-amber-400">MENUNGGU KONFIRMASI EMAIL</span></div>
+
+                <!-- Simulasi Tampilan Tombol Konfirmasi di Dalam Email -->
+                <div class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2 text-center">
+                    <span class="text-[10px] text-slate-400 block">Pratinjau Tombol Konfirmasi di Email:</span>
+                    <a id="eml-direct-confirm-link" href="#" onclick="handleEmailLinkClick(event)" class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-sans font-extrabold text-xs shadow">
+                        <i class="fa-solid fa-check-double"></i> <span>Konfirmasi Pembayaran Otomatis</span>
+                    </a>
+                    <input type="text" id="eml-confirm-link" readonly class="w-full px-2.5 py-1.5 rounded-lg mpk-input text-[10px]">
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2">
+                <a id="eml-mailto-btn" href="#" target="_blank" class="flex-1 py-2.5 px-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-1.5 shadow">
+                    <i class="fa-solid fa-paper-plane"></i> <span>Buka Draf Email Gmail</span>
+                </a>
+                <button type="button" id="eml-confirm-action-btn" onclick="confirmPendingPaymentFromEmailAction()" class="flex-1 py-2.5 px-3 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-1.5 shadow">
+                    <i class="fa-solid fa-circle-check"></i> <span>Konfirmasi Sekarang</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- POPUP PEMBAYARAN BERHASIL TERVERIFIKASI -->
     <div id="success-gopay-popup" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md hidden px-3">
         <div class="mpk-card p-6 rounded-2xl max-w-sm w-full border border-emerald-400/50 text-center space-y-3 popup-scale">
@@ -256,17 +311,22 @@
                 <i class="fa-solid fa-check-double text-2xl text-emerald-400"></i>
             </div>
             <div class="space-y-1">
-                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold uppercase">
-                    <i class="fa-solid fa-shield-check"></i> Terverifikasi
+                <span id="gopay-badge-label" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-mono font-bold uppercase">
+                    <i class="fa-solid fa-envelope-circle-check"></i> Verifikasi 1: Email Dikirim
                 </span>
                 <h3 class="text-base font-extrabold text-emerald-400 tracking-wide uppercase">PEMBAYARAN BERHASIL</h3>
-                <p id="gopay-popup-desc" class="text-xs text-slate-300 font-mono leading-relaxed">Setoran telah diverifikasi dan dicatat.</p>
+                <p id="gopay-popup-desc" class="text-xs text-slate-300 font-mono leading-relaxed">Email dikirim ke mpksmanegeri14sby@gmail.com. Klik tombol konfirmasi pada email untuk verifikasi tahap 2.</p>
             </div>
-            <div class="flex gap-2 pt-1">
-                <button id="btn-popup-print-bon" onclick="printLatestReceipt()" class="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-amber-300 border border-amber-400/30 font-bold text-xs flex items-center justify-center gap-1.5">
-                    <i class="fa-solid fa-print"></i> <span>Cetak Bon</span>
-                </button>
-                <button onclick="closeGopayPopup()" class="flex-1 py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-extrabold text-xs">
+            <div class="flex flex-col gap-2 pt-1">
+                <div class="flex gap-2">
+                    <button id="btn-popup-open-email" onclick="openLatestEmailConfirmModal()" class="flex-1 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-envelope"></i> <span>Email & Konfirmasi</span>
+                    </button>
+                    <button id="btn-popup-print-bon" onclick="printLatestReceipt()" class="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-emerald-300 border border-emerald-400/30 font-bold text-xs flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-print"></i> <span>Cetak Bon</span>
+                    </button>
+                </div>
+                <button onclick="closeGopayPopup()" class="w-full py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-extrabold text-xs">
                     Selesai
                 </button>
             </div>
@@ -323,12 +383,12 @@
         </div>
     </div>
 
-    <!-- MODAL POPUP: CATAT KAS / CICILAN + METODE + VERIFIKASI -->
+    <!-- MODAL POPUP: CATAT KAS / CICILAN + METODE + VERIFIKASI 2 TAHAP -->
     <div id="payment-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm hidden px-3">
         <div class="mpk-card p-5 rounded-2xl max-w-md w-full border border-amber-400/40 shadow-2xl space-y-3.5 max-h-[92vh] overflow-y-auto">
             <div class="flex items-center justify-between pb-2.5 border-b border-white/10">
                 <div>
-                    <h3 id="pay-col-title" class="text-xs sm:text-sm font-extrabold text-amber-400 uppercase tracking-wide">Setoran & Verifikasi Kas</h3>
+                    <h3 id="pay-col-title" class="text-xs sm:text-sm font-extrabold text-amber-400 uppercase tracking-wide">Setoran & 2 Verifikasi Kas</h3>
                     <p id="pay-student-subtitle" class="text-[11px] text-slate-300 mt-0.5">Nama Anggota</p>
                 </div>
                 <button onclick="closeModal('payment-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -336,7 +396,7 @@
 
             <div class="grid grid-cols-2 gap-2.5 bg-white/5 p-3 rounded-xl border border-white/10 text-xs">
                 <div>
-                    <span class="text-[10px] text-slate-400 block uppercase">Total Terbayar</span>
+                    <span class="text-[10px] text-slate-400 block uppercase">Total Terkonfirmasi</span>
                     <span id="pay-terbayar" class="font-bold font-mono text-emerald-400 text-sm">Rp 0</span>
                 </div>
                 <div>
@@ -382,7 +442,7 @@
                     </div>
                 </div>
 
-                <!-- NO REFERENSI / BUKTI & VERIFIKASI -->
+                <!-- NO REFERENSI / BUKTI & CATATAN -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <div id="pay-ref-container">
                         <label id="pay-ref-label" class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">Bukti / Kode Ref</label>
@@ -394,20 +454,20 @@
                     </div>
                 </div>
 
-                <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-400/30 cursor-pointer">
-                    <input type="checkbox" id="pay-verified" checked class="w-4 h-4 rounded bg-slate-900 border-emerald-400 text-emerald-400">
-                    <span class="text-[11px] font-semibold text-emerald-300">Verifikasi pembayaran telah diterima & valid</span>
-                </label>
+                <div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-400/30 text-[11px] text-amber-200 space-y-1">
+                    <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-envelope-circle-check text-emerald-400"></i> Verifikasi 2 Langkah Aktif:</p>
+                    <p class="text-[10px] text-slate-300">1) Kirim notifikasi ke <span class="font-mono text-emerald-300">mpksmanegeri14sby@gmail.com</span>. 2) Klik tombol konfirmasi di email agar otomatis terkonfirmasi.</p>
+                </div>
 
                 <button type="submit" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-300 hover:from-emerald-300 hover:to-teal-200 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-circle-check"></i> <span>Verifikasi & Simpan Pembayaran</span>
+                    <i class="fa-solid fa-paper-plane"></i> <span>Bayar & Kirim Email Konfirmasi</span>
                 </button>
             </form>
 
-            <!-- RIWAYAT PEMBAYARAN & CETAK BON PER TRANSAKSI -->
+            <!-- RIWAYAT PEMBAYARAN, KONFIRMASI EMAIL & CETAK BON -->
             <div class="pt-2.5 border-t border-white/10 space-y-2">
                 <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-bold text-amber-300 uppercase tracking-wider">Riwayat & Cetak Bon</span>
+                    <span class="text-[10px] font-bold text-amber-300 uppercase tracking-wider">Riwayat, Email & Cetak Bon</span>
                     <button type="button" onclick="openSummaryReceipt()" class="text-[10px] font-bold text-amber-400 hover:underline flex items-center gap-1">
                         <i class="fa-solid fa-file-lines"></i> Bon Tagihan Total
                     </button>
@@ -437,7 +497,7 @@
                     <div class="flex justify-between"><span class="text-slate-400">Halaman Kas:</span><span id="rcp-col" class="text-amber-300 text-right">-</span></div>
                     <div class="flex justify-between"><span class="text-slate-400">Metode:</span><span id="rcp-method" class="font-bold text-emerald-300">-</span></div>
                     <div class="flex justify-between"><span class="text-slate-400">Referensi:</span><span id="rcp-ref" class="text-slate-300">-</span></div>
-                    <div class="flex justify-between"><span class="text-slate-400">Status Verifikasi:</span><span id="rcp-status" class="font-bold text-emerald-400">TERVERIFIKASI</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">Status Verifikasi:</span><span id="rcp-status" class="font-bold text-emerald-400">TERKONFIRMASI</span></div>
                 </div>
 
                 <div class="border-t border-b border-dashed border-white/15 py-2.5 space-y-1">
@@ -446,7 +506,7 @@
                         <span id="rcp-amount" class="font-extrabold text-emerald-400 text-sm">Rp 0</span>
                     </div>
                     <div class="flex justify-between text-[11px]">
-                        <span class="text-slate-400">Total Terbayar:</span>
+                        <span class="text-slate-400">Total Terkonfirmasi:</span>
                         <span id="rcp-paid" class="text-white">Rp 0</span>
                     </div>
                     <div class="flex justify-between text-[11px]">
@@ -483,7 +543,7 @@
                 </div>
             </div>
             <div class="flex items-center gap-1.5 flex-shrink-0">
-                <button id="btn-admin-access" onclick="openAdminAccessModal()" class="px-2.5 py-1.5 rounded-xl bg-amber-400/15 text-amber-300 border border-amber-400/35 text-xs font-semibold hidden" title="Akses User"><i class="fa-solid fa-users-gear"></i></button>
+                <button id="btn-admin-access" onclick="openAdminAccessModal()" class="px-2.5 py-1.5 rounded-xl bg-amber-400/15 text-amber-300 border border-amber-400/35 text-xs font-semibold hidden" title="Akses & EmailJS"><i class="fa-solid fa-users-gear"></i></button>
                 <button id="btn-export-excel" onclick="exportExcel()" class="px-2.5 py-1.5 rounded-xl bg-emerald-500/15 text-emerald-300 border border-emerald-400/30 text-xs font-semibold restricted-action" title="Ekspor Excel"><i class="fa-solid fa-file-excel"></i></button>
                 <button id="btn-expense" onclick="openExpenseModal()" class="px-2.5 py-1.5 rounded-xl bg-rose-500/15 text-rose-300 border border-rose-400/30 text-xs font-semibold restricted-action" title="Catat Pengeluaran"><i class="fa-solid fa-receipt"></i></button>
                 <button onclick="openLoginModal()" class="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-extrabold flex items-center gap-1.5 shadow-md">
@@ -503,8 +563,8 @@
                     <i class="fa-solid fa-circle-info text-sm"></i>
                 </div>
                 <div>
-                    <h4 class="text-xs font-extrabold text-amber-300 uppercase">Mode Tamu (Read-Only)</h4>
-                    <p class="text-[11px] text-slate-300">Anda dapat memantau kas, memeriksa bon tagihan, dan mengirim kritik & saran.</p>
+                    <h4 class="text-xs font-extrabold text-amber-300 uppercase">Mode Tamu • 2 Verifikasi Email</h4>
+                    <p class="text-[11px] text-slate-300">Setiap pembayaran mengirim email ke <span class="font-mono text-emerald-300">mpksmanegeri14sby@gmail.com</span> dan otomatis terkonfirmasi setelah tombol konfirmasi pada email diklik.</p>
                 </div>
             </div>
             <button onclick="openLoginModal()" class="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 flex-shrink-0">
@@ -512,10 +572,115 @@
             </button>
         </div>
 
+        <!-- PANEL TAMPILKAN QRIS & TRANSFER DI DEPAN (KHUSUS MODE TAMU) -->
+        <div id="guest-quick-pay-panel" class="mpk-card p-4 sm:p-5 rounded-2xl border border-emerald-400/35 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-white/10">
+                <div>
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 text-[10px] font-mono font-bold uppercase mb-1">
+                        <i class="fa-solid fa-envelope-circle-check"></i> Email Konfirmasi: mpksmanegeri14sby@gmail.com
+                    </span>
+                    <h3 class="text-xs sm:text-sm font-extrabold text-amber-400 uppercase tracking-wider">Tampilkan QRIS & Transfer + 2 Verifikasi Email</h3>
+                </div>
+                <div class="grid grid-cols-2 gap-1.5 w-full sm:w-auto">
+                    <button type="button" id="guest-mode-btn-QRIS" onclick="setGuestChannel('QRIS')" class="px-3 py-2 rounded-xl text-xs font-extrabold bg-emerald-400 text-slate-950 flex items-center justify-center gap-1.5 shadow">
+                        <i class="fa-solid fa-qrcode"></i> <span>QRIS</span>
+                    </button>
+                    <button type="button" id="guest-mode-btn-Transfer" onclick="setGuestChannel('Transfer')" class="px-3 py-2 rounded-xl text-xs font-extrabold bg-white/5 text-slate-300 border border-white/15 hover:bg-white/10 flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-building-columns"></i> <span>Transfer</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                <!-- FORM PILIH ANGGOTA, TAGIHAN & NOMINAL -->
+                <div class="lg:col-span-6 space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">Pilih Anggota</label>
+                            <select id="guest-pay-student" onchange="syncGuestDefaultAmount()" class="w-full px-3 py-2 rounded-xl mpk-input text-xs">
+                                <option value="">-- Pilih Anggota --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">Pilih Tagihan</label>
+                            <select id="guest-pay-column" onchange="syncGuestDefaultAmount()" class="w-full px-3 py-2 rounded-xl mpk-input text-xs">
+                                <option value="">-- Pilih Tagihan --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">Nominal Bayar (Rp)</label>
+                            <input type="number" id="guest-pay-amount" min="1" placeholder="15000" class="w-full px-3 py-2 rounded-xl mpk-input text-xs font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">ID / Berita Transfer</label>
+                            <input type="text" id="guest-pay-ref" placeholder="Opsional (otomatis dibuat jika kosong)" class="w-full px-3 py-2 rounded-xl mpk-input text-xs font-mono">
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-2 pt-1">
+                        <button type="button" onclick="showGuestPaymentDestination()" class="flex-1 py-2.5 px-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-1.5 shadow">
+                            <i class="fa-solid fa-eye"></i> <span id="guest-show-btn-label">Tampilkan QRIS</span>
+                        </button>
+                        <button type="button" onclick="submitGuestPaymentAndSendEmail()" class="flex-1 py-2.5 px-3 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-1.5 shadow">
+                            <i class="fa-solid fa-paper-plane"></i> <span>Bayar & Kirim Email Konfirmasi</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KARTU TAMPILAN QRIS / TRANSFER -->
+                <div class="lg:col-span-6">
+                    <div id="guest-destination-card" class="bg-slate-950/85 p-4 rounded-2xl border border-amber-400/30 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span id="guest-dest-badge" class="px-2.5 py-0.5 rounded-full bg-amber-400/15 text-amber-300 font-mono text-[10px] font-bold uppercase">METODE: QRIS</span>
+                            <span id="guest-auto-verify-tag" class="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 font-mono text-[10px] font-bold">2-STEP EMAIL VERIFY</span>
+                        </div>
+
+                        <!-- TAMPILAN QRIS -->
+                        <div id="guest-qris-box" class="flex flex-col sm:flex-row items-center gap-3.5">
+                            <div class="w-28 h-28 rounded-2xl bg-white p-2 flex items-center justify-center flex-shrink-0 border-2 border-amber-400/40 shadow-lg">
+                                <img id="guest-qris-img" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=KAS-MPK-SMAN14-SURABAYA-QRIS" alt="QRIS KAS MPK" class="w-full h-full object-contain rounded-lg">
+                            </div>
+                            <div class="space-y-1 text-center sm:text-left min-w-0 flex-1">
+                                <p class="text-xs font-extrabold text-white">QRIS KAS MPK SMAN 14 SURABAYA</p>
+                                <p class="text-[11px] text-slate-300">Scan kode QRIS, lalu kirim email ke <span class="font-mono text-emerald-300">mpksmanegeri14sby@gmail.com</span> dan klik tombol konfirmasi di email.</p>
+                                <p id="guest-dest-summary" class="text-[11px] font-mono text-amber-300 font-bold pt-1">Nominal: Rp 0</p>
+                                <p id="guest-dest-code" class="text-[10px] font-mono text-emerald-300 break-all">Kode Ref: -</p>
+                            </div>
+                        </div>
+
+                        <!-- TAMPILAN TRANSFER -->
+                        <div id="guest-transfer-box" class="hidden space-y-2 text-xs font-mono">
+                            <div class="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
+                                <div class="flex justify-between items-center gap-2">
+                                    <span class="text-slate-400 text-[11px]">Bank / Kanal:</span>
+                                    <span class="text-amber-300 font-bold">BANK JATIM / MANDIRI / BCA</span>
+                                </div>
+                                <div class="flex justify-between items-center gap-2">
+                                    <span class="text-slate-400 text-[11px]">No. Rekening:</span>
+                                    <div class="flex items-center gap-1.5">
+                                        <span id="guest-rek-number" class="text-white font-extrabold">1234-5678-9012-14</span>
+                                        <button type="button" onclick="copyTransferNumber()" class="px-2 py-0.5 rounded bg-amber-400/20 text-amber-300 text-[10px] font-sans font-bold hover:bg-amber-400/30">Salin</button>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center gap-2">
+                                    <span class="text-slate-400 text-[11px]">Atas Nama:</span>
+                                    <span class="text-emerald-300 font-bold">BENDAHARA KAS MPK SMAN 14</span>
+                                </div>
+                            </div>
+                            <p id="guest-transfer-summary" class="text-[11px] text-amber-300 font-bold">Nominal Transfer: Rp 0 • Ref: -</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- STATISTIK KEUANGAN -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
             <div class="mpk-card p-3.5 sm:p-4 rounded-2xl border-l-4 border-l-amber-400">
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Kas Bersih</span>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Kas Bersih (Terkonfirmasi)</span>
                 <h2 id="stat-balance" class="text-base sm:text-xl font-extrabold font-mono text-amber-400 mt-1 gold-glow">Rp 0</h2>
             </div>
             <div class="mpk-card p-3.5 sm:p-4 rounded-2xl border-l-4 border-l-rose-400">
@@ -530,6 +695,19 @@
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Anggota</span>
                 <h2 id="stat-students" class="text-base sm:text-xl font-extrabold font-mono text-emerald-300 mt-1">0</h2>
             </div>
+        </div>
+
+        <!-- ANTREAN KONFIRMASI EMAIL (VERIFIKASI TAHAP 2) -->
+        <div id="pending-email-queue-panel" class="mpk-card p-4 sm:p-5 rounded-2xl border border-amber-400/35 space-y-3 hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-white/10">
+                <div>
+                    <h3 class="text-xs sm:text-sm font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-envelope-open-text text-emerald-400"></i> Menunggu Konfirmasi Email (mpksmanegeri14sby@gmail.com)
+                    </h3>
+                    <p class="text-[11px] text-slate-300">Klik tombol konfirmasi di email atau tombol aksi di bawah untuk mengubah status menjadi terkonfirmasi otomatis.</p>
+                </div>
+            </div>
+            <div id="pending-email-list" class="space-y-2"></div>
         </div>
 
         <!-- NAVIGASI HALAMAN & TABEL TAGIHAN -->
@@ -577,7 +755,7 @@
                             <th class="p-2.5 min-w-[145px] sticky-col-3">Nama Lengkap</th>
                             <th class="p-2.5 min-w-[65px]">Kelas</th>
                             <th class="p-2.5 min-w-[115px]">Jabatan</th>
-                            <th id="tab-column-header-title" class="p-2.5 min-w-[190px] text-center">Tagihan & Metode</th>
+                            <th id="tab-column-header-title" class="p-2.5 min-w-[190px] text-center">Tagihan & Status Email</th>
                             <th class="p-2.5 w-14 text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -682,6 +860,8 @@
     </div>
 
     <script>
+        const CONFIRMATION_EMAIL = "mpksmanegeri14sby@gmail.com";
+
         const firebaseConfig = {
             apiKey: "AIzaSyAoQSylqdz-k4Lj2I4C55vjIr1lfc_uXxk",
             authDomain: "kas-mpk-31d0a.firebaseapp.com",
@@ -704,8 +884,12 @@
         let paymentFilter = "ALL";
         let currentSortMode = "JABATAN";
         let latestReceiptData = null;
+        let latestPendingTxRef = null;
+        let activeEmailModalRef = null;
         let curStId = null;
         let curColId = null;
+        let guestChannel = "QRIS";
+        let guestPreviewRef = "";
 
         let appData = {
             students: {},
@@ -713,6 +897,11 @@
             matrixData: {},
             expenses: {},
             pembinaNotes: {},
+            emailConfig: {
+                publicKey: "",
+                serviceId: "",
+                templateId: ""
+            },
             accessPasswords: {
                 bphKetum: 'VINCENT2026',
                 bphWaketum: 'ORIANA2026',
@@ -759,6 +948,7 @@
                         appData.matrixData = data.matrixData || {};
                         appData.expenses = data.expenses || {};
                         appData.pembinaNotes = data.pembinaNotes || {};
+                        if (data.emailConfig) appData.emailConfig = Object.assign(appData.emailConfig, data.emailConfig);
                         if (data.accessPasswords) appData.accessPasswords = Object.assign(appData.accessPasswords, data.accessPasswords);
                         if (data.accessLevels) appData.accessLevels = Object.assign(appData.accessLevels, data.accessLevels);
                     }
@@ -768,17 +958,285 @@
                     }
                     renderAll();
                     updateStatus(true, "Online");
+                    checkUrlConfirmToken();
                 }, () => {
                     updateStatus(false, "Offline");
                     renderAll();
+                    checkUrlConfirmToken();
                 });
             } else {
                 updateStatus(false, "Offline");
                 renderAll();
+                checkUrlConfirmToken();
             }
 
             applyRolePermissions();
         });
+
+        function checkUrlConfirmToken() {
+            const params = new URLSearchParams(window.location.search);
+            const confirmToken = params.get("confirmPayment");
+            if (!confirmToken) return;
+
+            const found = findTransactionByToken(confirmToken);
+            if (found) {
+                confirmTransactionByCoords(found.stId, found.colId, found.txIndex, false);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
+        function findTransactionByToken(token) {
+            for (const [stId, cols] of Object.entries(appData.matrixData || {})) {
+                for (const [colId, cell] of Object.entries(cols || {})) {
+                    const history = (typeof cell === 'object' && Array.isArray(cell.history)) ? cell.history : [];
+                    const idx = history.findIndex(h => h.confirmToken === token || h.bonNo === token);
+                    if (idx !== -1) {
+                        return { stId, colId, txIndex: idx, tx: history[idx] };
+                    }
+                }
+            }
+            return null;
+        }
+
+        function getCellPaidConfirmed(cell) {
+            if (!cell) return 0;
+            if (typeof cell !== 'object') return Number(cell) || 0;
+            if (Array.isArray(cell.history) && cell.history.length > 0) {
+                return cell.history
+                    .filter(h => h.confirmed !== false)
+                    .reduce((acc, h) => acc + (Number(h.amount) || 0), 0);
+            }
+            return Number(cell.paid) || 0;
+        }
+
+        function syncCellPaidTotal(cell) {
+            if (!cell || typeof cell !== 'object') return;
+            if (Array.isArray(cell.history)) {
+                cell.paid = cell.history
+                    .filter(h => h.confirmed !== false)
+                    .reduce((acc, h) => acc + (Number(h.amount) || 0), 0);
+            }
+        }
+
+        function buildEmailConfirmUrl(token) {
+            const base = `${window.location.origin}${window.location.pathname}`;
+            return `${base}?confirmPayment=${encodeURIComponent(token)}`;
+        }
+
+        function dispatchEmailConfirmation(tx, st, col) {
+            const confirmUrl = buildEmailConfirmUrl(tx.confirmToken || tx.bonNo);
+            const subject = `Konfirmasi Pembayaran Kas MPK [${tx.bonNo}] - ${st.name}`;
+            const bodyLines = [
+                "NOTIFIKASI PEMBAYARAN KAS MPK SMAN 14 SURABAYA",
+                "------------------------------------------------",
+                `No. Bon       : ${tx.bonNo}`,
+                `Anggota       : ${st.name} (${st.clazz || 'XI-7'} - ${st.position || 'Anggota'})`,
+                `Halaman Kas   : ${col.title}`,
+                `Nominal Bayar : ${formatRupiah(tx.amount)}`,
+                `Metode        : ${tx.method}`,
+                `Referensi     : ${tx.ref}`,
+                `Tanggal       : ${tx.date}`,
+                `Status Awal   : MENUNGGU KONFIRMASI EMAIL`,
+                "",
+                "KLIK TAUTAN / TOMBOL KONFIRMASI BERIKUT UNTUK MENGONFIRMASI OTOMATIS:",
+                confirmUrl
+            ].join("\n");
+
+            const mailtoUrl = `mailto:${CONFIRMATION_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines)}`;
+
+            const cfg = appData.emailConfig || {};
+            if (cfg.publicKey && cfg.serviceId && cfg.templateId && typeof emailjs !== 'undefined') {
+                try {
+                    emailjs.init(cfg.publicKey);
+                    emailjs.send(cfg.serviceId, cfg.templateId, {
+                        to_email: CONFIRMATION_EMAIL,
+                        bon_no: tx.bonNo,
+                        member_name: st.name,
+                        column_title: col.title,
+                        amount: formatRupiah(tx.amount),
+                        method: tx.method,
+                        ref_code: tx.ref,
+                        date: tx.date,
+                        confirm_url: confirmUrl
+                    }).then(() => {
+                        showToast(`Email otomatis terkirim ke ${CONFIRMATION_EMAIL}`);
+                    }).catch(() => {});
+                } catch (e) {}
+            }
+
+            return { confirmUrl, mailtoUrl };
+        }
+
+        function createPendingPaymentAndSendEmail(stId, colId, amt, dateVal, method, ref, note) {
+            const st = appData.students[stId];
+            const col = appData.columns[colId];
+            if (!st || !col || amt <= 0) return null;
+
+            if (!appData.matrixData[stId]) appData.matrixData[stId] = {};
+            let cell = appData.matrixData[stId][colId];
+            if (!cell || typeof cell !== 'object') {
+                cell = { paid: Number(cell) || 0, history: [] };
+            }
+            if (!Array.isArray(cell.history)) cell.history = [];
+
+            const bonNo = `BON-${Date.now().toString().slice(-6)}`;
+            const confirmToken = `CFM-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+            const refCode = ref || (method === 'Tunai' ? 'Kasir Langsung' : `${method.toUpperCase()}-${Date.now().toString().slice(-5)}`);
+
+            const txRecord = {
+                bonNo,
+                confirmToken,
+                amount: amt,
+                date: dateVal || new Date().toISOString().slice(0, 10),
+                method,
+                ref: refCode,
+                note: note || `Pembayaran via ${method} dikirim ke ${CONFIRMATION_EMAIL}`,
+                verified: false,
+                confirmed: false,
+                emailSentTo: CONFIRMATION_EMAIL
+            };
+
+            cell.history.push(txRecord);
+            syncCellPaidTotal(cell);
+            appData.matrixData[stId][colId] = cell;
+
+            const txIndex = cell.history.length - 1;
+            const { confirmUrl, mailtoUrl } = dispatchEmailConfirmation(txRecord, st, col);
+
+            const confirmedPaid = getCellPaidConfirmed(cell);
+            const sisa = Math.max(0, (Number(col.targetAmount) || 0) - confirmedPaid);
+
+            latestPendingTxRef = { stId, colId, txIndex };
+            latestReceiptData = {
+                bonNo,
+                date: txRecord.date,
+                name: st.name,
+                meta: `${st.clazz || 'XI-7'} • ${st.position || 'Anggota'}`,
+                colTitle: col.title,
+                method,
+                ref: refCode,
+                verified: false,
+                amount: amt,
+                paid: confirmedPaid,
+                sisa,
+                note: `Verifikasi 1: Email dikirim ke ${CONFIRMATION_EMAIL}. Klik tombol konfirmasi di email untuk verifikasi tahap 2.`
+            };
+
+            persistData();
+            return { txRecord, confirmUrl, mailtoUrl, st, col };
+        }
+
+        window.confirmTransactionByCoords = (stId, colId, txIndex, silentPopup = false) => {
+            const cell = appData.matrixData[stId]?.[colId];
+            const st = appData.students[stId];
+            const col = appData.columns[colId];
+            if (!cell || typeof cell !== 'object' || !Array.isArray(cell.history) || !cell.history[txIndex]) return;
+
+            const tx = cell.history[txIndex];
+            tx.confirmed = true;
+            tx.verified = true;
+            tx.confirmedAt = new Date().toISOString();
+            syncCellPaidTotal(cell);
+            appData.matrixData[stId][colId] = cell;
+
+            const confirmedPaid = getCellPaidConfirmed(cell);
+            const sisa = Math.max(0, (Number(col?.targetAmount) || 0) - confirmedPaid);
+
+            latestReceiptData = {
+                bonNo: tx.bonNo,
+                date: tx.date,
+                name: st?.name || 'Anggota',
+                meta: `${st?.clazz || 'XI-7'} • ${st?.position || 'Anggota'}`,
+                colTitle: col?.title || 'Kas MPK',
+                method: tx.method,
+                ref: tx.ref,
+                verified: true,
+                amount: Number(tx.amount) || 0,
+                paid: confirmedPaid,
+                sisa,
+                note: `Pembayaran telah TERKONFIRMASI melalui konfirmasi email (${CONFIRMATION_EMAIL}).`
+            };
+
+            persistData();
+            closeModal('email-confirm-modal');
+
+            if (!silentPopup) {
+                document.getElementById('gopay-badge-label').innerHTML = `<i class="fa-solid fa-circle-check"></i> Verifikasi 2: Terkonfirmasi Email`;
+                document.getElementById('gopay-badge-label').className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold uppercase";
+                document.getElementById('gopay-popup-desc').textContent =
+                    `PEMBAYARAN BERHASIL & TERKONFIRMASI (${tx.method}) sebesar ${formatRupiah(tx.amount)} untuk ${st?.name || 'Anggota'}.`;
+                document.getElementById('success-gopay-popup').classList.remove('hidden');
+            } else {
+                showToast(`Pembayaran ${tx.bonNo} otomatis terkonfirmasi dari tautan email!`);
+            }
+        };
+
+        window.openEmailConfirmModal = (stId, colId, txIndex) => {
+            const cell = appData.matrixData[stId]?.[colId];
+            const st = appData.students[stId];
+            const col = appData.columns[colId];
+            const tx = (typeof cell === 'object' && Array.isArray(cell.history)) ? cell.history[txIndex] : null;
+            if (!tx || !st || !col) return;
+
+            activeEmailModalRef = { stId, colId, txIndex };
+            const token = tx.confirmToken || tx.bonNo;
+            const confirmUrl = buildEmailConfirmUrl(token);
+            const subject = `Konfirmasi Pembayaran Kas MPK [${tx.bonNo}] - ${st.name}`;
+            const bodyLines = [
+                "NOTIFIKASI PEMBAYARAN KAS MPK SMAN 14 SURABAYA",
+                `No. Bon : ${tx.bonNo}`,
+                `Anggota : ${st.name} (${st.clazz || 'XI-7'})`,
+                `Tagihan : ${col.title}`,
+                `Nominal : ${formatRupiah(tx.amount)}`,
+                `Metode  : ${tx.method} (${tx.ref})`,
+                "",
+                "Klik tombol / tautan konfirmasi berikut untuk mengonfirmasi otomatis:",
+                confirmUrl
+            ].join("\n");
+
+            document.getElementById('eml-bon').textContent = tx.bonNo;
+            document.getElementById('eml-name').textContent = `${st.name} (${st.clazz || 'XI-7'})`;
+            document.getElementById('eml-col').textContent = col.title;
+            document.getElementById('eml-method').textContent = `${tx.method} • ${tx.ref}`;
+            document.getElementById('eml-amount').textContent = formatRupiah(tx.amount);
+            document.getElementById('eml-confirm-link').value = confirmUrl;
+            document.getElementById('eml-direct-confirm-link').href = confirmUrl;
+            document.getElementById('eml-mailto-btn').href = `mailto:${CONFIRMATION_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines)}`;
+
+            const statusEl = document.getElementById('eml-status');
+            const confirmBtn = document.getElementById('eml-confirm-action-btn');
+            if (tx.confirmed) {
+                statusEl.textContent = "TERKONFIRMASI";
+                statusEl.className = "font-bold text-emerald-400";
+                confirmBtn.disabled = true;
+                confirmBtn.classList.add("opacity-50");
+            } else {
+                statusEl.textContent = "MENUNGGU KONFIRMASI EMAIL";
+                statusEl.className = "font-bold text-amber-400";
+                confirmBtn.disabled = false;
+                confirmBtn.classList.remove("opacity-50");
+            }
+
+            document.getElementById('email-confirm-modal').classList.remove('hidden');
+        };
+
+        window.handleEmailLinkClick = (e) => {
+            e.preventDefault();
+            if (!activeEmailModalRef) return;
+            confirmTransactionByCoords(activeEmailModalRef.stId, activeEmailModalRef.colId, activeEmailModalRef.txIndex, false);
+        };
+
+        window.openLatestEmailConfirmModal = () => {
+            closeGopayPopup();
+            if (latestPendingTxRef) {
+                openEmailConfirmModal(latestPendingTxRef.stId, latestPendingTxRef.colId, latestPendingTxRef.txIndex);
+            }
+        };
+
+        window.confirmPendingPaymentFromEmailAction = () => {
+            if (!activeEmailModalRef) return;
+            confirmTransactionByCoords(activeEmailModalRef.stId, activeEmailModalRef.colId, activeEmailModalRef.txIndex, false);
+        };
 
         function updateStatus(online, text) {
             const badge = document.getElementById('db-status');
@@ -846,6 +1304,10 @@
             if (windowRole !== 'ADMINISTRATOR') { showToast("Akses khusus Administrator!", "error"); return; }
             const p = appData.accessPasswords || {};
             const lvl = appData.accessLevels || {};
+            const ec = appData.emailConfig || {};
+            document.getElementById('emailjs-public-key').value = ec.publicKey || '';
+            document.getElementById('emailjs-service-id').value = ec.serviceId || '';
+            document.getElementById('emailjs-template-id').value = ec.templateId || '';
             document.getElementById('pass-bph-ketum').value = p.bphKetum || 'VINCENT2026';
             document.getElementById('pass-bend-1').value = p.bend1 || 'AIRINBENDAHARA';
             document.getElementById('pass-pembina').value = p.pembina || 'PEMBINASMAN14';
@@ -858,6 +1320,11 @@
 
         window.saveAdminAccessSettings = () => {
             if (windowRole !== 'ADMINISTRATOR') return;
+            appData.emailConfig = {
+                publicKey: document.getElementById('emailjs-public-key').value.trim(),
+                serviceId: document.getElementById('emailjs-service-id').value.trim(),
+                templateId: document.getElementById('emailjs-template-id').value.trim()
+            };
             appData.accessPasswords.bphKetum = document.getElementById('pass-bph-ketum').value.trim() || 'VINCENT2026';
             appData.accessPasswords.bend1 = document.getElementById('pass-bend-1').value.trim() || 'AIRINBENDAHARA';
             appData.accessPasswords.pembina = document.getElementById('pass-pembina').value.trim() || 'PEMBINASMAN14';
@@ -867,7 +1334,7 @@
             appData.accessLevels.pembina = document.getElementById('level-pembina').value;
             persistData();
             closeModal('admin-access-modal');
-            showToast("Konfigurasi akses disimpan!");
+            showToast("Konfigurasi akses & email disimpan!");
         };
 
         function getCurrentRoleAccessLevel() {
@@ -887,8 +1354,10 @@
             const btnExportExcel = document.getElementById('btn-export-excel');
             const btnAdminAccess = document.getElementById('btn-admin-access');
             const guestBanner = document.getElementById('guest-warning-banner');
+            const guestQuickPay = document.getElementById('guest-quick-pay-panel');
 
             if (guestBanner) guestBanner.style.display = isGuest ? 'flex' : 'none';
+            if (guestQuickPay) guestQuickPay.classList.toggle('hidden', !isGuest);
             if (btnAdminAccess) btnAdminAccess.classList.toggle('hidden', windowRole !== 'ADMINISTRATOR');
 
             if (lvl === 'FULL') {
@@ -917,6 +1386,8 @@
         }
 
         function renderAll() {
+            renderGuestQuickPayOptions();
+            renderPendingEmailQueue();
             renderTabNavigation();
             renderFilterButtons();
             renderActiveTabTable();
@@ -924,6 +1395,227 @@
             renderExpenses();
             renderStats();
         }
+
+        function renderPendingEmailQueue() {
+            const panel = document.getElementById('pending-email-queue-panel');
+            const list = document.getElementById('pending-email-list');
+            if (!panel || !list) return;
+
+            const pendingItems = [];
+            Object.entries(appData.matrixData || {}).forEach(([stId, cols]) => {
+                const st = appData.students[stId];
+                if (!st) return;
+                Object.entries(cols || {}).forEach(([colId, cell]) => {
+                    const col = appData.columns[colId];
+                    if (!col || typeof cell !== 'object' || !Array.isArray(cell.history)) return;
+                    cell.history.forEach((h, idx) => {
+                        if (h.confirmed === false) {
+                            pendingItems.push({ stId, colId, idx, st, col, h });
+                        }
+                    });
+                });
+            });
+
+            if (pendingItems.length === 0) {
+                panel.classList.add('hidden');
+                list.innerHTML = "";
+                return;
+            }
+
+            panel.classList.remove('hidden');
+            list.innerHTML = pendingItems.map(item => `
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 rounded-xl bg-amber-500/10 border border-amber-400/30 text-xs">
+                    <div class="space-y-0.5">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-bold text-white">${escapeHtml(item.st.name)}</span>
+                            <span class="font-mono text-emerald-300 font-bold">${formatRupiah(item.h.amount)}</span>
+                            <span class="px-2 py-0.5 rounded bg-amber-400/20 text-amber-300 font-mono text-[10px] font-bold">${escapeHtml(item.h.method)}</span>
+                        </div>
+                        <p class="text-[11px] text-slate-300 font-mono">${escapeHtml(item.col.title)} • Bon: ${escapeHtml(item.h.bonNo)} • Email: ${CONFIRMATION_EMAIL}</p>
+                    </div>
+                    <div class="flex items-center gap-1.5 flex-shrink-0">
+                        <button type="button" onclick="openEmailConfirmModal('${item.stId}', '${item.colId}', ${item.idx})" class="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-amber-300 border border-amber-400/30 text-[11px] font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-envelope"></i> Email
+                        </button>
+                        <button type="button" onclick="confirmTransactionByCoords('${item.stId}', '${item.colId}', ${item.idx}, false)" class="px-3 py-1.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-[11px] font-extrabold flex items-center gap-1 shadow">
+                            <i class="fa-solid fa-circle-check"></i> Konfirmasi Sekarang
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderGuestQuickPayOptions() {
+            const stSelect = document.getElementById('guest-pay-student');
+            const colSelect = document.getElementById('guest-pay-column');
+            if (!stSelect || !colSelect) return;
+
+            const prevSt = stSelect.value;
+            const prevCol = colSelect.value;
+
+            const students = Object.entries(appData.students || {});
+            const moneyCols = Object.entries(appData.columns || {}).filter(([, c]) => c.type === 'money');
+
+            stSelect.innerHTML = students.length
+                ? students.map(([id, s]) => `<option value="${id}">${escapeHtml(s.name)} (${escapeHtml(s.clazz || 'XI-7')})</option>`).join('')
+                : `<option value="">Belum ada anggota</option>`;
+
+            colSelect.innerHTML = moneyCols.length
+                ? moneyCols.map(([id, c]) => `<option value="${id}">${escapeHtml(c.title)} (${formatRupiah(c.targetAmount)})</option>`).join('')
+                : `<option value="">Belum ada tagihan uang</option>`;
+
+            if (prevSt && appData.students[prevSt]) stSelect.value = prevSt;
+            if (prevCol && appData.columns[prevCol]) colSelect.value = prevCol;
+            else if (activeTabColId && appData.columns[activeTabColId]?.type === 'money') colSelect.value = activeTabColId;
+
+            syncGuestDefaultAmount();
+        }
+
+        window.syncGuestDefaultAmount = () => {
+            const stId = document.getElementById('guest-pay-student')?.value;
+            const colId = document.getElementById('guest-pay-column')?.value;
+            const amtInput = document.getElementById('guest-pay-amount');
+            if (!amtInput) return;
+
+            if (stId && colId && appData.columns[colId]) {
+                const target = Number(appData.columns[colId].targetAmount) || 0;
+                const cell = appData.matrixData[stId]?.[colId] || {};
+                const paid = getCellPaidConfirmed(cell);
+                const sisa = Math.max(0, target - paid);
+                if (!amtInput.value) {
+                    amtInput.value = sisa > 0 ? sisa : (target || 15000);
+                }
+            }
+            updateGuestDestinationPreview();
+        };
+
+        window.setGuestChannel = (channel) => {
+            guestChannel = channel;
+            const btnQris = document.getElementById('guest-mode-btn-QRIS');
+            const btnTrf = document.getElementById('guest-mode-btn-Transfer');
+            const showLabel = document.getElementById('guest-show-btn-label');
+
+            if (channel === 'QRIS') {
+                btnQris.className = "px-3 py-2 rounded-xl text-xs font-extrabold bg-emerald-400 text-slate-950 flex items-center justify-center gap-1.5 shadow";
+                btnTrf.className = "px-3 py-2 rounded-xl text-xs font-extrabold bg-white/5 text-slate-300 border border-white/15 hover:bg-white/10 flex items-center justify-center gap-1.5";
+                showLabel.textContent = "Tampilkan QRIS";
+            } else {
+                btnTrf.className = "px-3 py-2 rounded-xl text-xs font-extrabold bg-emerald-400 text-slate-950 flex items-center justify-center gap-1.5 shadow";
+                btnQris.className = "px-3 py-2 rounded-xl text-xs font-extrabold bg-white/5 text-slate-300 border border-white/15 hover:bg-white/10 flex items-center justify-center gap-1.5";
+                showLabel.textContent = "Tampilkan Transfer";
+            }
+            updateGuestDestinationPreview();
+        };
+
+        window.showGuestPaymentDestination = () => {
+            const stId = document.getElementById('guest-pay-student')?.value;
+            const colId = document.getElementById('guest-pay-column')?.value;
+            const amt = Number(document.getElementById('guest-pay-amount')?.value) || 0;
+            if (!stId || !colId || amt <= 0) {
+                showToast("Pilih anggota, tagihan, dan nominal yang valid.", "error");
+                return;
+            }
+            if (!guestPreviewRef) {
+                guestPreviewRef = `${guestChannel === 'QRIS' ? 'QRIS' : 'TRF'}-${Date.now().toString().slice(-6)}`;
+            }
+            updateGuestDestinationPreview(true);
+            showToast(`Info ${guestChannel} ditampilkan. Klik Bayar & Kirim Email Konfirmasi.`);
+        };
+
+        function updateGuestDestinationPreview(forceNewRef = false) {
+            const stId = document.getElementById('guest-pay-student')?.value;
+            const colId = document.getElementById('guest-pay-column')?.value;
+            const amt = Number(document.getElementById('guest-pay-amount')?.value) || 0;
+            const customRef = document.getElementById('guest-pay-ref')?.value.trim();
+
+            if (!guestPreviewRef || forceNewRef) {
+                guestPreviewRef = `${guestChannel === 'QRIS' ? 'QRIS' : 'TRF'}-${Date.now().toString().slice(-6)}`;
+            }
+            const refCode = customRef || guestPreviewRef;
+
+            const badge = document.getElementById('guest-dest-badge');
+            const qrisBox = document.getElementById('guest-qris-box');
+            const trfBox = document.getElementById('guest-transfer-box');
+            const qrisImg = document.getElementById('guest-qris-img');
+            const destSummary = document.getElementById('guest-dest-summary');
+            const destCode = document.getElementById('guest-dest-code');
+            const trfSummary = document.getElementById('guest-transfer-summary');
+
+            if (!badge || !qrisBox || !trfBox) return;
+
+            badge.textContent = `METODE: ${guestChannel.toUpperCase()}`;
+
+            const stName = stId && appData.students[stId] ? appData.students[stId].name : 'Anggota';
+            const colTitle = colId && appData.columns[colId] ? appData.columns[colId].title : 'Kas MPK';
+
+            if (guestChannel === 'QRIS') {
+                qrisBox.classList.remove('hidden');
+                trfBox.classList.add('hidden');
+                if (qrisImg) {
+                    const payload = encodeURIComponent(`KAS-MPK-SMAN14|${stName}|${colTitle}|${amt}|${refCode}`);
+                    qrisImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${payload}`;
+                }
+                if (destSummary) destSummary.textContent = `Nominal: ${formatRupiah(amt)} • ${colTitle}`;
+                if (destCode) destCode.textContent = `Kode Ref: ${refCode}`;
+            } else {
+                qrisBox.classList.add('hidden');
+                trfBox.classList.remove('hidden');
+                if (trfSummary) trfSummary.textContent = `Nominal Transfer: ${formatRupiah(amt)} • Ref: ${refCode}`;
+            }
+        }
+
+        window.copyTransferNumber = () => {
+            const rek = document.getElementById('guest-rek-number')?.textContent?.trim() || '1234-5678-9012-14';
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(rek).then(() => showToast("Nomor rekening disalin!"));
+            } else {
+                showToast(`No. Rekening: ${rek}`);
+            }
+        };
+
+        window.submitGuestPaymentAndSendEmail = () => {
+            const stId = document.getElementById('guest-pay-student')?.value;
+            const colId = document.getElementById('guest-pay-column')?.value;
+            const amt = Number(document.getElementById('guest-pay-amount')?.value) || 0;
+            const customRef = document.getElementById('guest-pay-ref')?.value.trim();
+
+            if (!stId || !appData.students[stId]) {
+                showToast("Pilih anggota terlebih dahulu.", "error");
+                return;
+            }
+            if (!colId || !appData.columns[colId]) {
+                showToast("Pilih tagihan terlebih dahulu.", "error");
+                return;
+            }
+            if (amt <= 0) {
+                showToast("Masukkan nominal pembayaran yang valid.", "error");
+                return;
+            }
+
+            const dateVal = new Date().toISOString().slice(0, 10);
+            const refCode = customRef || guestPreviewRef || `${guestChannel === 'QRIS' ? 'QRIS' : 'TRF'}-${Date.now().toString().slice(-5)}`;
+
+            const created = createPendingPaymentAndSendEmail(
+                stId,
+                colId,
+                amt,
+                dateVal,
+                guestChannel,
+                refCode,
+                `Pembayaran ${guestChannel} mode tamu • Email ke ${CONFIRMATION_EMAIL}`
+            );
+            if (!created) return;
+
+            guestPreviewRef = "";
+            document.getElementById('guest-pay-ref').value = "";
+            document.getElementById('guest-pay-amount').value = "";
+
+            document.getElementById('gopay-badge-label').innerHTML = `<i class="fa-solid fa-envelope-circle-check"></i> Verifikasi 1: Email Dikirim`;
+            document.getElementById('gopay-badge-label').className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-mono font-bold uppercase";
+            document.getElementById('gopay-popup-desc').textContent =
+                `PEMBAYARAN DICATAT (${formatRupiah(amt)} via ${guestChannel}). Email dikirim ke ${CONFIRMATION_EMAIL}. Klik tombol konfirmasi di email untuk verifikasi tahap 2.`;
+            document.getElementById('success-gopay-popup').classList.remove('hidden');
+        };
 
         window.handleSearchInput = (val) => {
             searchQuery = val.toLowerCase().trim();
@@ -1021,7 +1713,7 @@
             if (currentCol.type === 'money') {
                 studentEntries.forEach(([stId]) => {
                     const cell = appData.matrixData[stId]?.[activeTabColId];
-                    const paid = typeof cell === 'object' ? (Number(cell.paid) || 0) : (Number(cell) || 0);
+                    const paid = getCellPaidConfirmed(cell);
                     const target = Number(currentCol.targetAmount) || 0;
                     totalMoney += paid;
                     totalUnpaid += Math.max(0, target - paid);
@@ -1030,7 +1722,7 @@
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
                         <span class="font-bold text-amber-300">Tagihan: ${escapeHtml(currentCol.title)} (Target ${formatRupiah(currentCol.targetAmount)})</span>
                         <div class="flex flex-wrap gap-3">
-                            <span class="text-emerald-400 font-bold">Masuk: ${formatRupiah(totalMoney)}</span>
+                            <span class="text-emerald-400 font-bold">Terkonfirmasi: ${formatRupiah(totalMoney)}</span>
                             <span class="text-rose-400 font-bold">Sisa Tagihan: ${formatRupiah(totalUnpaid)}</span>
                         </div>
                     </div>
@@ -1043,7 +1735,7 @@
                 if (searchQuery && !st.name.toLowerCase().includes(searchQuery) && !(st.position || '').toLowerCase().includes(searchQuery) && !(st.clazz || '').toLowerCase().includes(searchQuery)) return false;
                 const cell = appData.matrixData[stId]?.[activeTabColId];
                 if (currentCol.type === 'money') {
-                    const paid = typeof cell === 'object' ? (Number(cell.paid) || 0) : (Number(cell) || 0);
+                    const paid = getCellPaidConfirmed(cell);
                     const target = Number(currentCol.targetAmount) || 0;
                     if (paymentFilter === 'LUNAS' && paid < target) return false;
                     if (paymentFilter === 'BELUM_LUNAS' && (paid <= 0 || paid >= target)) return false;
@@ -1071,13 +1763,15 @@
 
             tbody.innerHTML = filtered.map(([stId, st], idx) => {
                 const cell = appData.matrixData[stId]?.[activeTabColId] || {};
-                const paid = typeof cell === 'object' ? (Number(cell.paid) || 0) : (Number(cell) || 0);
+                const paid = getCellPaidConfirmed(cell);
                 const target = Number(currentCol.targetAmount) || 0;
                 const sisa = Math.max(0, target - paid);
                 const history = (typeof cell === 'object' && Array.isArray(cell.history)) ? cell.history : [];
                 const lastTx = history.length > 0 ? history[history.length - 1] : null;
+                const isConfirmed = lastTx ? lastTx.confirmed !== false : false;
+
                 const methodBadge = lastTx
-                    ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold ${lastTx.verified ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30' : 'bg-amber-500/20 text-amber-300'}"><i class="fa-solid ${lastTx.method === 'QRIS' ? 'fa-qrcode' : lastTx.method === 'Transfer' ? 'fa-building-columns' : 'fa-money-bill-wave'}"></i> ${escapeHtml(lastTx.method)}</span>`
+                    ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold ${isConfirmed ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30' : 'bg-amber-500/20 text-amber-300 border border-amber-400/30'}"><i class="fa-solid ${lastTx.method === 'QRIS' ? 'fa-qrcode' : lastTx.method === 'Transfer' ? 'fa-building-columns' : 'fa-money-bill-wave'}"></i> ${escapeHtml(lastTx.method)} • ${isConfirmed ? 'TERKONFIRMASI' : 'MENUNGGU EMAIL'}</span>`
                     : `<span class="text-[10px] text-slate-500 font-mono">Belum ada bayar</span>`;
 
                 const deleteBtn = canEdit ? `<button onclick="confirmDeleteStudent('${stId}')" class="text-rose-400 hover:text-rose-300 p-1.5" title="Hapus"><i class="fa-solid fa-trash text-[11px]"></i></button>` : '-';
@@ -1092,13 +1786,14 @@
                         <td class="p-2.5 text-center">
                             ${currentCol.type === 'money' ? `
                                 <div class="flex flex-col items-center gap-1">
-                                    <div class="flex items-center gap-1.5">
+                                    <div class="flex items-center gap-1.5 flex-wrap justify-center">
                                         <span class="font-mono font-extrabold text-xs ${paid >= target && target > 0 ? 'text-emerald-400' : 'text-amber-300'}">${formatRupiah(paid)}</span>
                                         ${methodBadge}
                                     </div>
                                     <span class="font-mono text-[10px] text-rose-400">Sisa: ${formatRupiah(sisa)}</span>
-                                    <div class="flex items-center gap-1.5 mt-0.5">
+                                    <div class="flex items-center gap-1.5 mt-0.5 flex-wrap justify-center">
                                         ${canEdit ? `<button onclick="openPaymentModal('${stId}', '${activeTabColId}')" class="px-2.5 py-1 rounded-lg bg-amber-400/15 hover:bg-amber-400/25 text-amber-300 text-[10px] font-bold border border-amber-400/35">+ Bayar</button>` : ''}
+                                        ${lastTx && !isConfirmed ? `<button onclick="openEmailConfirmModal('${stId}', '${activeTabColId}', ${history.length - 1})" class="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 text-[10px] font-bold border border-amber-400/40 flex items-center gap-1"><i class="fa-solid fa-envelope"></i> Konfirmasi</button>` : ''}
                                         <button onclick="openReceiptByStudent('${stId}', '${activeTabColId}')" class="px-2.5 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 text-[10px] font-bold border border-emerald-400/35 flex items-center gap-1" title="Cetak Bon Tagihan">
                                             <i class="fa-solid fa-print"></i> Bon
                                         </button>
@@ -1118,7 +1813,7 @@
             if (currentCol.type === 'money') {
                 tfoot.innerHTML = `
                     <tr class="bg-amber-400/10 border-t border-amber-400/30 font-extrabold text-amber-300 text-xs">
-                        <td colspan="5" class="p-2.5 text-right uppercase">Total Terkumpul Tagihan Ini:</td>
+                        <td colspan="5" class="p-2.5 text-right uppercase">Total Terkonfirmasi Tagihan Ini:</td>
                         <td class="p-2.5 text-center font-mono text-emerald-400">${formatRupiah(totalMoney)}</td>
                         <td></td>
                     </tr>
@@ -1157,7 +1852,7 @@
             document.getElementById('pay-student-subtitle').textContent = `${st.name} (${st.clazz}) • ${st.position}`;
 
             const cell = appData.matrixData[stId]?.[colId] || {};
-            const paid = typeof cell === 'object' ? (Number(cell.paid) || 0) : (Number(cell) || 0);
+            const paid = getCellPaidConfirmed(cell);
             const target = Number(col.targetAmount) || 0;
             const sisa = Math.max(0, target - paid);
 
@@ -1166,7 +1861,6 @@
             document.getElementById('pay-amount').value = sisa > 0 ? sisa : (target || 15000);
             document.getElementById('pay-ref').value = '';
             document.getElementById('pay-note').value = '';
-            document.getElementById('pay-verified').checked = true;
             toggleMethodRefField();
 
             renderPaymentHistoryModal(stId, colId);
@@ -1183,26 +1877,30 @@
                 return;
             }
 
-            historyList.innerHTML = history.map((h, i) => `
-                <div class="flex items-center justify-between gap-2 bg-white/5 p-2 rounded-xl border border-white/10 text-[11px]">
-                    <div class="min-w-0">
-                        <div class="flex items-center gap-1.5 flex-wrap">
-                            <strong class="text-emerald-400 font-mono">${formatRupiah(h.amount)}</strong>
-                            <span class="px-1.5 py-0.5 rounded bg-amber-400/15 text-amber-300 font-mono text-[9px] font-bold">${escapeHtml(h.method || 'Tunai')}</span>
-                            <span class="px-1.5 py-0.5 rounded ${h.verified ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'} font-mono text-[9px]">${h.verified ? 'TERVERIFIKASI' : 'BELUM VERIF'}</span>
+            historyList.innerHTML = history.map((h, i) => {
+                const isConfirmed = h.confirmed !== false;
+                return `
+                    <div class="flex items-center justify-between gap-2 bg-white/5 p-2 rounded-xl border border-white/10 text-[11px]">
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <strong class="text-emerald-400 font-mono">${formatRupiah(h.amount)}</strong>
+                                <span class="px-1.5 py-0.5 rounded bg-amber-400/15 text-amber-300 font-mono text-[9px] font-bold">${escapeHtml(h.method || 'Tunai')}</span>
+                                <span class="px-1.5 py-0.5 rounded ${isConfirmed ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'} font-mono text-[9px]">${isConfirmed ? 'TERKONFIRMASI' : 'MENUNGGU EMAIL'}</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 font-mono truncate">${escapeHtml(h.date || '-')} ${h.ref ? '• Ref: ' + escapeHtml(h.ref) : ''}</p>
                         </div>
-                        <p class="text-[10px] text-slate-400 font-mono truncate">${escapeHtml(h.date || '-')} ${h.ref ? '• Ref: ' + escapeHtml(h.ref) : ''}</p>
+                        <div class="flex items-center gap-1 flex-shrink-0">
+                            ${!isConfirmed ? `<button type="button" onclick="openEmailConfirmModal('${stId}', '${colId}', ${i})" class="px-2 py-1 rounded-lg bg-amber-400/20 hover:bg-amber-400/30 text-amber-300 text-[10px] font-bold" title="Konfirmasi Email"><i class="fa-solid fa-envelope"></i></button>` : ''}
+                            <button type="button" onclick="openReceiptByHistory('${stId}', '${colId}', ${i})" class="px-2 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-emerald-300 text-[10px] font-bold" title="Cetak Bon">
+                                <i class="fa-solid fa-print"></i>
+                            </button>
+                            <button type="button" onclick="deletePaymentHistory('${stId}', '${colId}', ${i})" class="px-2 py-1 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 text-[10px]" title="Hapus">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-1 flex-shrink-0">
-                        <button type="button" onclick="openReceiptByHistory('${stId}', '${colId}', ${i})" class="px-2 py-1 rounded-lg bg-amber-400/15 hover:bg-amber-400/25 text-amber-300 text-[10px] font-bold" title="Cetak Bon">
-                            <i class="fa-solid fa-print"></i>
-                        </button>
-                        <button type="button" onclick="deletePaymentHistory('${stId}', '${colId}', ${i})" class="px-2 py-1 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 text-[10px]" title="Hapus">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         window.handlePaymentSubmit = (e) => {
@@ -1214,53 +1912,15 @@
             const method = document.querySelector('input[name="pay-method"]:checked')?.value || 'Tunai';
             const ref = document.getElementById('pay-ref').value.trim();
             const note = document.getElementById('pay-note').value.trim();
-            const verified = document.getElementById('pay-verified').checked;
 
-            if (!appData.matrixData[curStId]) appData.matrixData[curStId] = {};
-            let cell = appData.matrixData[curStId][curColId];
-            if (!cell || typeof cell !== 'object') {
-                cell = { paid: Number(cell) || 0, history: [] };
-            }
-            if (!Array.isArray(cell.history)) cell.history = [];
+            const created = createPendingPaymentAndSendEmail(curStId, curColId, amt, dateVal, method, ref, note);
+            if (!created) return;
 
-            cell.paid = (Number(cell.paid) || 0) + amt;
-            const bonNo = `BON-${Date.now().toString().slice(-6)}`;
-            const txRecord = {
-                bonNo,
-                amount: amt,
-                date: dateVal,
-                method,
-                ref: ref || (method === 'Tunai' ? 'Kasir Langsung' : '-'),
-                note,
-                verified
-            };
-            cell.history.push(txRecord);
-            appData.matrixData[curStId][curColId] = cell;
-
-            const st = appData.students[curStId];
-            const col = appData.columns[curColId];
-            const sisa = Math.max(0, (Number(col.targetAmount) || 0) - cell.paid);
-
-            latestReceiptData = {
-                bonNo,
-                date: dateVal,
-                name: st.name,
-                meta: `${st.clazz || 'XI-7'} • ${st.position || 'Anggota'}`,
-                colTitle: col.title,
-                method,
-                ref: txRecord.ref,
-                verified,
-                amount: amt,
-                paid: cell.paid,
-                sisa,
-                note: note || 'Pembayaran telah diverifikasi oleh bendahara/pengurus MPK.'
-            };
-
-            persistData();
             closeModal('payment-modal');
-
+            document.getElementById('gopay-badge-label').innerHTML = `<i class="fa-solid fa-envelope-circle-check"></i> Verifikasi 1: Email Dikirim`;
+            document.getElementById('gopay-badge-label').className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-mono font-bold uppercase";
             document.getElementById('gopay-popup-desc').textContent =
-                `PEMBAYARAN BERHASIL (${method}) sebesar ${formatRupiah(amt)} untuk ${st.name} telah ${verified ? 'terverifikasi' : 'dicatat'}.`;
+                `PEMBAYARAN DICATAT (${formatRupiah(amt)} via ${method}). Email dikirim ke ${CONFIRMATION_EMAIL}. Klik tombol konfirmasi di email untuk verifikasi tahap 2.`;
             document.getElementById('success-gopay-popup').classList.remove('hidden');
         };
 
@@ -1268,8 +1928,8 @@
             if (!canEditPayment()) return;
             const cell = appData.matrixData[stId]?.[colId];
             if (cell && typeof cell === 'object' && Array.isArray(cell.history)) {
-                const removed = cell.history.splice(idx, 1)[0];
-                if (removed) cell.paid = Math.max(0, (Number(cell.paid) || 0) - (Number(removed.amount) || 0));
+                cell.history.splice(idx, 1);
+                syncCellPaidTotal(cell);
                 persistData();
                 renderPaymentHistoryModal(stId, colId);
                 showToast("Riwayat pembayaran dihapus.");
@@ -1280,7 +1940,7 @@
             const st = appData.students[stId];
             const col = appData.columns[colId];
             const cell = appData.matrixData[stId]?.[colId] || {};
-            const paid = typeof cell === 'object' ? (Number(cell.paid) || 0) : (Number(cell) || 0);
+            const paid = getCellPaidConfirmed(cell);
             const target = Number(col.targetAmount) || 0;
             const sisa = Math.max(0, target - paid);
             const h = (typeof cell === 'object' && Array.isArray(cell.history)) ? cell.history[idx] : null;
@@ -1294,7 +1954,7 @@
                 colTitle: col.title,
                 method: h.method || 'Tunai',
                 ref: h.ref || '-',
-                verified: h.verified !== false,
+                verified: h.confirmed !== false,
                 amount: Number(h.amount) || 0,
                 paid,
                 sisa,
@@ -1306,7 +1966,7 @@
             const st = appData.students[stId];
             const col = appData.columns[colId];
             const cell = appData.matrixData[stId]?.[colId] || {};
-            const paid = typeof cell === 'object' ? (Number(cell.paid) || 0) : (Number(cell) || 0);
+            const paid = getCellPaidConfirmed(cell);
             const target = Number(col.targetAmount) || 0;
             const sisa = Math.max(0, target - paid);
             const history = (typeof cell === 'object' && Array.isArray(cell.history)) ? cell.history : [];
@@ -1320,13 +1980,13 @@
                 colTitle: col.title,
                 method: last?.method || (paid > 0 ? 'Tunai' : 'Belum Dibayar'),
                 ref: last?.ref || '-',
-                verified: paid > 0 ? (last?.verified !== false) : false,
+                verified: last ? (last.confirmed !== false) : false,
                 amount: last ? Number(last.amount) : paid,
                 paid,
                 sisa,
-                note: sisa === 0 && target > 0
-                    ? 'Status tagihan LUNAS dan terverifikasi.'
-                    : `Target tagihan ${formatRupiah(target)}. Sisa tagihan ${formatRupiah(sisa)}.`
+                note: last && last.confirmed === false
+                    ? `Menunggu klik tombol konfirmasi pada email ${CONFIRMATION_EMAIL}.`
+                    : (sisa === 0 && target > 0 ? 'Status tagihan LUNAS dan terkonfirmasi.' : `Target tagihan ${formatRupiah(target)}. Sisa tagihan ${formatRupiah(sisa)}.`)
             });
         };
 
@@ -1355,10 +2015,10 @@
 
             const statusEl = document.getElementById('rcp-status');
             if (data.verified) {
-                statusEl.textContent = 'TERVERIFIKASI';
+                statusEl.textContent = 'TERKONFIRMASI';
                 statusEl.className = 'font-bold text-emerald-400';
             } else {
-                statusEl.textContent = 'MENUNGGU VERIFIKASI';
+                statusEl.textContent = 'MENUNGGU KONFIRMASI EMAIL';
                 statusEl.className = 'font-bold text-amber-400';
             }
 
@@ -1438,7 +2098,7 @@
                 Object.entries(appData.columns || {}).forEach(([colId, col]) => {
                     if (col.type === 'money') {
                         const cell = appData.matrixData[stId]?.[colId];
-                        const paid = typeof cell === 'object' ? (Number(cell.paid) || 0) : (Number(cell) || 0);
+                        const paid = getCellPaidConfirmed(cell);
                         totalIncome += paid;
                         totalUnpaid += Math.max(0, (Number(col.targetAmount) || 0) - paid);
                     }
@@ -1561,7 +2221,7 @@
                     let row = [i + 1, st.name, st.clazz, st.position];
                     Object.keys(appData.columns || {}).forEach(colId => {
                         const cell = appData.matrixData[stId]?.[colId];
-                        row.push(typeof cell === 'object' ? (cell.paid || cell.text || (cell.checked ? 'Ya' : 'Belum')) : (cell || '-'));
+                        row.push(typeof cell === 'object' ? (getCellPaidConfirmed(cell) || cell.text || (cell.checked ? 'Ya' : 'Belum')) : (cell || '-'));
                     });
                     data.push(row);
                 });
